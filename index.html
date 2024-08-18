@@ -3,307 +3,701 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Evaluación: POBLACIÓN Y MEDIO AMBIENTE</title>
+    <title>Evaluación Unidad 10: La Revolución Genética</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        h1 {
-            color: #333;
-        }
-        .quiz-container {
-            background-color: #fff;
             padding: 20px;
-            margin: 20px 0;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            width: 80%;
-            max-width: 800px;
+        }
+        #timer {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background-color: #f2f2f2;
+            border: 1px solid #ccc;
+            padding: 10px;
+            font-size: 18px;
+            border-radius: 5px;
+        }
+        .hidden {
+            display: none;
         }
         .question {
-            margin-bottom: 15px;
+            margin-bottom: 20px;
         }
-        .options {
-            list-style-type: none;
-            padding: 0;
-        }
-        .options li {
+        .question h3 {
             margin-bottom: 10px;
         }
-        button {
-            background-color: #28a745;
-            color: #fff;
-            border: none;
-            padding: 10px 20px;
-            cursor: pointer;
-            border-radius: 5px;
-            font-size: 16px;
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
         }
-        button:hover {
-            background-color: #218838;
-        }
-        #results {
-            margin-top: 20px;
-            font-size: 18px;
-        }
-        footer {
-            background-color: #333;
-            color: #fff;
-            padding: 10px;
-            width: 100%;
-            text-align: center;
+        #resultsModal {
+            display: none;
             position: fixed;
-            bottom: 0;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: white;
+            padding: 20px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+        }
+        #overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 500;
         }
     </style>
 </head>
 <body>
-    <h1>Evaluación: POBLACIÓN Y MEDIO AMBIENTE</h1>
-    <div class="quiz-container">
-        <div id="quiz"></div>
-        <button id="submit">Enviar respuestas</button>
-        <div id="results"></div>
+    <div id="timer" class="hidden">Tiempo restante: <span id="time">30:00</span></div>
+
+    <div class="container">
+        <div id="studentInfoForm">
+            <h2>Información del Estudiante</h2>
+            <form id="infoForm">
+                <label for="name">Nombre del Estudiante:</label>
+                <input type="text" id="name" required><br><br>
+                <label for="nie">NIE:</label>
+                <input type="text" id="nie" required><br><br>
+                <label for="unit">Unidad Evaluada:</label>
+                <input type="text" id="unit" value="Unidad 10: La Revolución Genética" readonly><br><br>
+                <button type="submit">Iniciar Evaluación</button>
+            </form>
+        </div>
+
+        <div id="quiz" class="hidden">
+            <h2>Evaluación Unidad 10: La Revolución Genética</h2>
+
+            <div id="questions-container"></div>
+
+            <button id="submitQuiz">OBTENER CALIFICACIÓN</button>
+        </div>
+
+        <div id="resultsModal">
+            <h2>Resultados</h2>
+            <p id="date"></p>
+            <p id="timeTaken"></p>
+            <p id="unitEvaluated"></p>
+            <p id="studentName"></p>
+            <p id="studentNIE"></p>
+            <p id="score"></p>
+            <p id="incorrectAnswers"></p>
+            <button id="closeModal">Cerrar</button>
+        </div>
+
+        <div id="overlay"></div>
     </div>
-    <footer>
-        &copy; derechos reservados Prof. Alberto Sanchez
-    </footer>
+
     <script>
-        const quizData = [
+        const nieList = ["4267837", "3850952", "3851018", "5032035", "19806181", "6297536", "2608724", "6262810", "4267838", "20162435", "3850923", "19806209", "4267828", "3850942"];
+        const maxTime = 30 * 60; // 30 minutos en segundos
+        let timeRemaining = maxTime;
+        const timerElement = document.getElementById('time');
+        let startTime;
+
+        const questions = [
+            // Indicador 10.1
             {
-                question: "¿Qué es el crecimiento poblacional?",
-                answers: [
-                    { text: "El aumento en el número de individuos en una población.", correct: true },
-                    { text: "La disminución en el número de individuos en una población.", correct: false },
-                    { text: "La migración de individuos entre poblaciones.", correct: false },
-                    { text: "La estabilización del número de individuos en una población.", correct: false }
+                id: 'q1',
+                indicator: 'Indicador 10.1: Investiga y describe con interés los aportes de Mendel en la herencia genética.',
+                question: "¿Cuál fue uno de los principales descubrimientos de Gregor Mendel en la genética?",
+                options: [
+                    { value: 'a', text: "Las leyes de la herencia." },
+                    { value: 'b', text: "La estructura del ADN." },
+                    { value: 'c', text: "La teoría de la evolución." },
+                    { value: 'd', text: "La selección natural." }
                 ]
             },
             {
-                question: "¿Qué es una huella ecológica?",
-                answers: [
-                    { text: "Una medida del impacto ambiental de una persona o comunidad.", correct: true },
-                    { text: "Una técnica para reciclar residuos.", correct: false },
-                    { text: "Un método para conservar energía.", correct: false },
-                    { text: "Un tipo de contaminación del suelo.", correct: false }
+                id: 'q2',
+                indicator: 'Indicador 10.1: Investiga y describe con interés los aportes de Mendel en la herencia genética.',
+                question: "¿Qué plantas utilizó Mendel para sus experimentos sobre la herencia?",
+                options: [
+                    { value: 'a', text: "Plantas de guisante." },
+                    { value: 'b', text: "Plantas de trigo." },
+                    { value: 'c', text: "Plantas de maíz." },
+                    { value: 'd', text: "Plantas de girasol." }
                 ]
             },
             {
-                question: "¿Qué es el cambio climático?",
-                answers: [
-                    { text: "Un cambio significativo y duradero en los patrones del clima.", correct: true },
-                    { text: "Un fenómeno natural de corto plazo.", correct: false },
-                    { text: "Un evento meteorológico extremo.", correct: false },
-                    { text: "Un ciclo normal del clima.", correct: false }
+                id: 'q3',
+                indicator: 'Indicador 10.1: Investiga y describe con interés los aportes de Mendel en la herencia genética.',
+                question: "¿Qué es un alelo según las leyes de Mendel?",
+                options: [
+                    { value: 'a', text: "Una versión alternativa de un gen." },
+                    { value: 'b', text: "Una célula que se divide." },
+                    { value: 'c', text: "Una proteína que se sintetiza en el núcleo." },
+                    { value: 'd', text: "Un tipo de célula reproductora." }
                 ]
             },
             {
-                question: "¿Qué es la sobrepoblación?",
-                answers: [
-                    { text: "Una condición en la que la densidad de población excede la capacidad de carga del medio ambiente.", correct: true },
-                    { text: "Una condición en la que la densidad de población es menor que la capacidad de carga del medio ambiente.", correct: false },
-                    { text: "Una condición en la que la densidad de población es igual a la capacidad de carga del medio ambiente.", correct: false },
-                    { text: "Una condición en la que la densidad de población es constante.", correct: false }
+                id: 'q4',
+                indicator: 'Indicador 10.1: Investiga y describe con interés los aportes de Mendel en la herencia genética.',
+                question: "¿Cómo se denomina la cruz que Mendel utilizó para estudiar la herencia de dos características al mismo tiempo?",
+                options: [
+                    { value: 'a', text: "Cruz dihíbrida." },
+                    { value: 'b', text: "Cruz monohíbrida." },
+                    { value: 'c', text: "Cruz trihíbrida." },
+                    { value: 'd', text: "Cruz tetrálica." }
+                ]
+            },
+            // Indicador 10.2
+            {
+                id: 'q5',
+                indicator: 'Indicador 10.2: Indaga, analiza y explica los principios de la herencia y los patrones de herencia mendeliana y no mendeliana.',
+                question: "¿Qué es la herencia mendeliana?",
+                options: [
+                    { value: 'a', text: "La herencia de características que siguen las leyes descubiertas por Mendel." },
+                    { value: 'b', text: "La herencia que no sigue las leyes descubiertas por Mendel." },
+                    { value: 'c', text: "La herencia ligada al sexo." },
+                    { value: 'd', text: "La herencia debida a mutaciones." }
                 ]
             },
             {
-                question: "¿Qué es la capacidad de carga?",
-                answers: [
-                    { text: "El número máximo de individuos de una especie que un medio ambiente puede soportar de manera sostenible.", correct: true },
-                    { text: "El número mínimo de individuos de una especie que un medio ambiente puede soportar de manera sostenible.", correct: false },
-                    { text: "El número promedio de individuos de una especie que un medio ambiente puede soportar de manera sostenible.", correct: false },
-                    { text: "El número total de individuos de una especie en un medio ambiente.", correct: false }
+                id: 'q6',
+                indicator: 'Indicador 10.2: Indaga, analiza y explica los principios de la herencia y los patrones de herencia mendeliana y no mendeliana.',
+                question: "¿Cuál de los siguientes es un ejemplo de herencia no mendeliana?",
+                options: [
+                    { value: 'a', text: "Herencia poligénica." },
+                    { value: 'b', text: "Herencia dominante-recesiva." },
+                    { value: 'c', text: "Herencia de carácter único." },
+                    { value: 'd', text: "Herencia genética básica." }
                 ]
             },
             {
-                question: "¿Qué es la urbanización?",
-                answers: [
-                    { text: "El proceso de crecimiento y expansión de las áreas urbanas.", correct: true },
-                    { text: "El proceso de disminución de las áreas urbanas.", correct: false },
-                    { text: "El proceso de conservación de las áreas rurales.", correct: false },
-                    { text: "El proceso de degradación de las áreas rurales.", correct: false }
+                id: 'q7',
+                indicator: 'Indicador 10.2: Indaga, analiza y explica los principios de la herencia y los patrones de herencia mendeliana y no mendeliana.',
+                question: "¿Cuál es el patrón de herencia cuando un solo gen afecta múltiples características?",
+                options: [
+                    { value: 'a', text: "Pleiotropía." },
+                    { value: 'b', text: "Epistasis." },
+                    { value: 'c', text: "Herencia poligénica." },
+                    { value: 'd', text: "Codominancia." }
                 ]
             },
             {
-                question: "¿Qué es la deforestación?",
-                answers: [
-                    { text: "La eliminación de bosques y selvas para otros usos, como la agricultura o la urbanización.", correct: true },
-                    { text: "La plantación de árboles en áreas deforestadas.", correct: false },
-                    { text: "La conservación de bosques y selvas.", correct: false },
-                    { text: "La restauración de bosques y selvas.", correct: false }
+                id: 'q8',
+                indicator: 'Indicador 10.2: Indaga, analiza y explica los principios de la herencia y los patrones de herencia mendeliana y no mendeliana.',
+                question: "¿Qué tipo de herencia ocurre cuando ambos alelos de un gen se expresan de manera equitativa en el fenotipo?",
+                options: [
+                    { value: 'a', text: "Codominancia." },
+                    { value: 'b', text: "Dominancia incompleta." },
+                    { value: 'c', text: "Herencia ligada al sexo." },
+                    { value: 'd', text: "Herencia poligénica." }
+                ]
+            },
+            // Indicador 10.3
+            {
+                id: 'q9',
+                indicator: 'Indicador 10.3: Indaga y explica con claridad la estructura y función del ADN y ARN.',
+                question: "¿Cuál es la función principal del ADN en las células?",
+                options: [
+                    { value: 'a', text: "Almacenar y transmitir información genética." },
+                    { value: 'b', text: "Producir energía." },
+                    { value: 'c', text: "Regular el metabolismo." },
+                    { value: 'd', text: "Transportar nutrientes." }
                 ]
             },
             {
-                question: "¿Qué es la desertificación?",
-                answers: [
-                    { text: "La degradación de tierras áridas, semiáridas y subhúmedas secas debido a diversas causas, incluidas las actividades humanas.", correct: true },
-                    { text: "La formación de desiertos debido a la falta de agua.", correct: false },
-                    { text: "La formación de desiertos debido a la actividad volcánica.", correct: false },
-                    { text: "La formación de desiertos debido a la actividad tectónica.", correct: false }
+                id: 'q10',
+                indicator: 'Indicador 10.3: Indaga y explica con claridad la estructura y función del ADN y ARN.',
+                question: "¿Qué diferencia al ARN del ADN?",
+                options: [
+                    { value: 'a', text: "El ARN tiene uracilo en lugar de timina." },
+                    { value: 'b', text: "El ARN es de doble cadena." },
+                    { value: 'c', text: "El ARN tiene desoxirribosa en lugar de ribosa." },
+                    { value: 'd', text: "El ARN se encuentra solo en el núcleo." }
                 ]
             },
             {
-                question: "¿Qué es la biodiversidad?",
-                answers: [
-                    { text: "La variedad de especies, genes y ecosistemas en un área determinada.", correct: true },
-                    { text: "La variedad de especies en un área determinada.", correct: false },
-                    { text: "La variedad de genes en un área determinada.", correct: false },
-                    { text: "La variedad de ecosistemas en un área determinada.", correct: false }
+                id: 'q11',
+                indicator: 'Indicador 10.3: Indaga y explica con claridad la estructura y función del ADN y ARN.',
+                question: "¿Cuál es el proceso por el cual el ADN se transcribe en ARN?",
+                options: [
+                    { value: 'a', text: "Transcripción." },
+                    { value: 'b', text: "Traducción." },
+                    { value: 'c', text: "Replicación." },
+                    { value: 'd', text: "Mutación." }
                 ]
             },
             {
-                question: "¿Qué es la contaminación del aire?",
-                answers: [
-                    { text: "La introducción de sustancias nocivas en la atmósfera, afectando la calidad del aire y la salud humana.", correct: true },
-                    { text: "La introducción de sustancias beneficiosas en la atmósfera, mejorando la calidad del aire y la salud humana.", correct: false },
-                    { text: "La eliminación de sustancias nocivas en la atmósfera, mejorando la calidad del aire y la salud humana.", correct: false },
-                    { text: "La eliminación de sustancias beneficiosas en la atmósfera, afectando la calidad del aire y la salud humana.", correct: false }
+                id: 'q12',
+                indicator: 'Indicador 10.3: Indaga y explica con claridad la estructura y función del ADN y ARN.',
+                question: "¿Qué molécula lleva la información genética del ADN hacia el ribosoma para la síntesis de proteínas?",
+                options: [
+                    { value: 'a', text: "ARN mensajero (ARNm)." },
+                    { value: 'b', text: "ARN de transferencia (ARNt)." },
+                    { value: 'c', text: "ARN ribosómico (ARNr)." },
+                    { value: 'd', text: "ADN mitocondrial." }
+                ]
+            },
+            // Indicador 10.4
+            {
+                id: 'q13',
+                indicator: 'Indicador 10.4: Experimenta y explica con claridad el proceso de replicación del ADN y la síntesis de proteínas.',
+                question: "¿Cuál es la primera etapa del proceso de replicación del ADN?",
+                options: [
+                    { value: 'a', text: "Desenrollamiento de la doble hélice." },
+                    { value: 'b', text: "Unión de los nucleótidos." },
+                    { value: 'c', text: "Formación de la cadena complementaria." },
+                    { value: 'd', text: "Síntesis de proteínas." }
                 ]
             },
             {
-                question: "¿Qué es la contaminación del agua?",
-                answers: [
-                    { text: "La introducción de sustancias nocivas en cuerpos de agua, afectando la calidad del agua y la vida acuática.", correct: true },
-                    { text: "La introducción de sustancias beneficiosas en cuerpos de agua, mejorando la calidad del agua y la vida acuática.", correct: false },
-                    { text: "La eliminación de sustancias nocivas en cuerpos de agua, mejorando la calidad del agua y la vida acuática.", correct: false },
-                    { text: "La eliminación de sustancias beneficiosas en cuerpos de agua, afectando la calidad del agua y la vida acuática.", correct: false }
+                id: 'q14',
+                indicator: 'Indicador 10.4: Experimenta y explica con claridad el proceso de replicación del ADN y la síntesis de proteínas.',
+                question: "¿Cuál es el propósito de la replicación del ADN?",
+                options: [
+                    { value: 'a', text: "Duplicar el material genético antes de la división celular." },
+                    { value: 'b', text: "Producir ARN para la síntesis de proteínas." },
+                    { value: 'c', text: "Reparar las mutaciones en el ADN." },
+                    { value: 'd', text: "Regular la expresión génica." }
                 ]
             },
             {
-                question: "¿Qué es la contaminación del suelo?",
-                answers: [
-                    { text: "La introducción de sustancias nocivas en el suelo, afectando la calidad del suelo y la vida terrestre.", correct: true },
-                    { text: "La introducción de sustancias beneficiosas en el suelo, mejorando la calidad del suelo y la vida terrestre.", correct: false },
-                    { text: "La eliminación de sustancias nocivas en el suelo, mejorando la calidad del suelo y la vida terrestre.", correct: false },
-                    { text: "La eliminación de sustancias beneficiosas en el suelo, afectando la calidad del suelo y la vida terrestre.", correct: false }
+                id: 'q15',
+                indicator: 'Indicador 10.4: Experimenta y explica con claridad el proceso de replicación del ADN y la síntesis de proteínas.',
+                question: "¿En qué orgánulo celular tiene lugar la síntesis de proteínas?",
+                options: [
+                    { value: 'a', text: "En los ribosomas." },
+                    { value: 'b', text: "En el núcleo." },
+                    { value: 'c', text: "En las mitocondrias." },
+                    { value: 'd', text: "En el aparato de Golgi." }
                 ]
             },
             {
-                question: "¿Qué es la capa de ozono?",
-                answers: [
-                    { text: "Una capa de la atmósfera rica en ozono que protege la Tierra de la radiación ultravioleta dañina.", correct: true },
-                    { text: "Una capa de la atmósfera rica en oxígeno que protege la Tierra de la radiación ultravioleta dañina.", correct: false },
-                    { text: "Una capa de la atmósfera rica en nitrógeno que protege la Tierra de la radiación ultravioleta dañina.", correct: false },
-                    { text: "Una capa de la atmósfera rica en dióxido de carbono que protege la Tierra de la radiación ultravioleta dañina.", correct: false }
+                id: 'q16',
+                indicator: 'Indicador 10.4: Experimenta y explica con claridad el proceso de replicación del ADN y la síntesis de proteínas.',
+                question: "¿Cuál es el proceso mediante el cual la información del ARN se traduce en una secuencia de aminoácidos para formar una proteína?",
+                options: [
+                    { value: 'a', text: "Traducción." },
+                    { value: 'b', text: "Transcripción." },
+                    { value: 'c', text: "Replicación." },
+                    { value: 'd', text: "Mutación." }
+                ]
+            },
+            // Indicador 10.5
+            {
+                id: 'q17',
+                indicator: 'Indicador 10.5: Indaga y describe con claridad el código genético y sus implicaciones en la herencia.',
+                question: "¿Qué es el código genético?",
+                options: [
+                    { value: 'a', text: "Es un conjunto de reglas que define cómo se traducen las secuencias de nucleótidos en proteínas." },
+                    { value: 'b', text: "Es la estructura física del ADN." },
+                    { value: 'c', text: "Es la secuencia de aminoácidos en una proteína." },
+                    { value: 'd', text: "Es el conjunto de genes que posee un organismo." }
                 ]
             },
             {
-                question: "¿Qué es el efecto invernadero?",
-                answers: [
-                    { text: "El calentamiento de la superficie de la Tierra debido a la acumulación de gases de efecto invernadero en la atmósfera.", correct: true },
-                    { text: "El enfriamiento de la superficie de la Tierra debido a la acumulación de gases de efecto invernadero en la atmósfera.", correct: false },
-                    { text: "El calentamiento de la superficie de la Tierra debido a la acumulación de aerosoles en la atmósfera.", correct: false },
-                    { text: "El enfriamiento de la superficie de la Tierra debido a la acumulación de aerosoles en la atmósfera.", correct: false }
+                id: 'q18',
+                indicator: 'Indicador 10.5: Indaga y describe con claridad el código genético y sus implicaciones en la herencia.',
+                question: "¿Cómo se denominan los bloques de construcción que forman las proteínas?",
+                options: [
+                    { value: 'a', text: "Aminoácidos." },
+                    { value: 'b', text: "Nucleótidos." },
+                    { value: 'c', text: "Azúcares." },
+                    { value: 'd', text: "Fosfatos." }
                 ]
             },
             {
-                question: "¿Qué es el reciclaje?",
-                answers: [
-                    { text: "El proceso de convertir materiales desechados en nuevos productos para reducir el consumo de recursos y la contaminación.", correct: true },
-                    { text: "El proceso de eliminar materiales desechados en vertederos.", correct: false },
-                    { text: "El proceso de quemar materiales desechados para generar energía.", correct: false },
-                    { text: "El proceso de enterrar materiales desechados en el suelo.", correct: false }
+                id: 'q19',
+                indicator: 'Indicador 10.5: Indaga y describe con claridad el código genético y sus implicaciones en la herencia.',
+                question: "¿Qué significa que el código genético sea universal?",
+                options: [
+                    { value: 'a', text: "Que es prácticamente el mismo en todos los organismos vivos." },
+                    { value: 'b', text: "Que puede cambiar de un organismo a otro." },
+                    { value: 'c', text: "Que solo se encuentra en organismos multicelulares." },
+                    { value: 'd', text: "Que se refiere solo a los seres humanos." }
                 ]
             },
             {
-                question: "¿Qué es la energía renovable?",
-                answers: [
-                    { text: "La energía obtenida de recursos que se pueden reponer naturalmente en un corto período de tiempo, como el sol, el viento y el agua.", correct: true },
-                    { text: "La energía obtenida de recursos que no se pueden reponer naturalmente en un corto período de tiempo, como el petróleo, el carbón y el gas natural.", correct: false },
-                    { text: "La energía obtenida de la quema de materiales desechados.", correct: false },
-                    { text: "La energía obtenida de la descomposición de materiales orgánicos.", correct: false }
+                id: 'q20',
+                indicator: 'Indicador 10.5: Indaga y describe con claridad el código genético y sus implicaciones en la herencia.',
+                question: "¿Cuál es la función del ARN mensajero (ARNm) en el proceso del código genético?",
+                options: [
+                    { value: 'a', text: "Transportar la información genética del ADN al ribosoma para la síntesis de proteínas." },
+                    { value: 'b', text: "Ensamblar los aminoácidos en el ribosoma." },
+                    { value: 'c', text: "Regresar la información genética al núcleo." },
+                    { value: 'd', text: "Eliminar mutaciones en la secuencia genética." }
+                ]
+            },
+            // Indicador 10.6
+            {
+                id: 'q21',
+                indicator: 'Indicador 10.6: Investiga y explica con responsabilidad las técnicas de ingeniería genética y sus aplicaciones.',
+                question: "¿Qué es la ingeniería genética?",
+                options: [
+                    { value: 'a', text: "Es la manipulación directa del ADN de un organismo para alterar sus características." },
+                    { value: 'b', text: "Es el estudio de las mutaciones genéticas en la naturaleza." },
+                    { value: 'c', text: "Es la selección natural de especies en un ecosistema." },
+                    { value: 'd', text: "Es el cruce de diferentes especies para crear nuevas." }
                 ]
             },
             {
-                question: "¿Qué es la sobrepesca?",
-                answers: [
-                    { text: "La captura de peces a un ritmo que supera la capacidad de las poblaciones de peces para recuperarse.", correct: true },
-                    { text: "La captura de peces a un ritmo que no supera la capacidad de las poblaciones de peces para recuperarse.", correct: false },
-                    { text: "La captura de peces a un ritmo que es igual a la capacidad de las poblaciones de peces para recuperarse.", correct: false },
-                    { text: "La captura de peces a un ritmo que es menor que la capacidad de las poblaciones de peces para recuperarse.", correct: false }
+                id: 'q22',
+                indicator: 'Indicador 10.6: Investiga y explica con responsabilidad las técnicas de ingeniería genética y sus aplicaciones.',
+                question: "¿Cuál es una aplicación común de la ingeniería genética en la agricultura?",
+                options: [
+                    { value: 'a', text: "El desarrollo de cultivos transgénicos resistentes a plagas." },
+                    { value: 'b', text: "La selección de semillas tradicionales." },
+                    { value: 'c', text: "El uso de fertilizantes orgánicos." },
+                    { value: 'd', text: "La rotación de cultivos." }
                 ]
             },
             {
-                question: "¿Qué es la acidificación del océano?",
-                answers: [
-                    { text: "La disminución del pH del océano debido a la absorción de dióxido de carbono de la atmósfera.", correct: true },
-                    { text: "La disminución del pH del océano debido a la actividad volcánica.", correct: false },
-                    { text: "La disminución del pH del océano debido a la actividad tectónica.", correct: false },
-                    { text: "La disminución del pH del océano debido a la actividad humana.", correct: false }
+                id: 'q23',
+                indicator: 'Indicador 10.6: Investiga y explica con responsabilidad las técnicas de ingeniería genética y sus aplicaciones.',
+                question: "¿Qué técnica permite insertar un gen específico en un organismo para darle una nueva característica?",
+                options: [
+                    { value: 'a', text: "Transferencia génica." },
+                    { value: 'b', text: "Clonación." },
+                    { value: 'c', text: "Mutagénesis." },
+                    { value: 'd', text: "Secuenciación de ADN." }
                 ]
             },
             {
-                question: "¿Qué es un acuífero?",
-                answers: [
-                    { text: "Una capa de roca o sedimento que almacena y permite el flujo de agua subterránea.", correct: true },
-                    { text: "Una capa de roca o sedimento que no almacena ni permite el flujo de agua subterránea.", correct: false },
-                    { text: "Una capa de roca o sedimento que almacena pero no permite el flujo de agua subterránea.", correct: false },
-                    { text: "Una capa de roca o sedimento que no almacena pero permite el flujo de agua subterránea.", correct: false }
+                id: 'q24',
+                indicator: 'Indicador 10.6: Investiga y explica con responsabilidad las técnicas de ingeniería genética y sus aplicaciones.',
+                question: "¿Cuál es una posible aplicación de la ingeniería genética en la medicina?",
+                options: [
+                    { value: 'a', text: "La terapia génica para tratar enfermedades genéticas." },
+                    { value: 'b', text: "El uso de antibióticos convencionales." },
+                    { value: 'c', text: "El diagnóstico por imagen." },
+                    { value: 'd', text: "El desarrollo de vacunas tradicionales." }
+                ]
+            },
+            // Indicador 10.7
+            {
+                id: 'q25',
+                indicator: 'Indicador 10.7: Indaga y describe con precisión las mutaciones génicas y cromosómicas.',
+                question: "¿Qué es una mutación génica?",
+                options: [
+                    { value: 'a', text: "Una alteración en la secuencia de nucleótidos de un gen." },
+                    { value: 'b', text: "Una duplicación de cromosomas." },
+                    { value: 'c', text: "Una separación de los cromosomas durante la mitosis." },
+                    { value: 'd', text: "Una fusión de dos genes diferentes." }
                 ]
             },
             {
-                question: "¿Qué es la urbanización?",
-                answers: [
-                    { text: "El proceso de crecimiento y expansión de las áreas urbanas.", correct: true },
-                    { text: "El proceso de disminución de las áreas urbanas.", correct: false },
-                    { text: "El proceso de conservación de las áreas rurales.", correct: false },
-                    { text: "El proceso de degradación de las áreas rurales.", correct: false }
+                id: 'q26',
+                indicator: 'Indicador 10.7: Indaga y describe con precisión las mutaciones génicas y cromosómicas.',
+                question: "¿Qué tipo de mutación implica un cambio en el número de cromosomas?",
+                options: [
+                    { value: 'a', text: "Mutación cromosómica." },
+                    { value: 'b', text: "Mutación génica." },
+                    { value: 'c', text: "Translocación." },
+                    { value: 'd', text: "Inversión." }
                 ]
             },
             {
-                question: "¿Qué es la desertificación?",
-                answers: [
-                    { text: "La degradación de tierras áridas, semiáridas y subhúmedas secas debido a diversas causas, incluidas las actividades humanas.", correct: true },
-                    { text: "La formación de desiertos debido a la falta de agua.", correct: false },
-                    { text: "La formación de desiertos debido a la actividad volcánica.", correct: false },
-                    { text: "La formación de desiertos debido a la actividad tectónica.", correct: false }
+                id: 'q27',
+                indicator: 'Indicador 10.7: Indaga y describe con precisión las mutaciones génicas y cromosómicas.',
+                question: "¿Qué término describe una mutación en la que se pierden uno o más nucleótidos en una secuencia de ADN?",
+                options: [
+                    { value: 'a', text: "Deleción." },
+                    { value: 'b', text: "Duplicación." },
+                    { value: 'c', text: "Inversión." },
+                    { value: 'd', text: "Translocación." }
                 ]
             },
             {
-                question: "¿Qué es la biodiversidad?",
-                answers: [
-                    { text: "La variedad de especies, genes y ecosistemas en un área determinada.", correct: true },
-                    { text: "La variedad de especies en un área determinada.", correct: false },
-                    { text: "La variedad de genes en un área determinada.", correct: false },
-                    { text: "La variedad de ecosistemas en un área determinada.", correct: false }
+                id: 'q28',
+                indicator: 'Indicador 10.7: Indaga y describe con precisión las mutaciones génicas y cromosómicas.',
+                question: "¿Cuál es un ejemplo de mutación cromosómica?",
+                options: [
+                    { value: 'a', text: "Síndrome de Down." },
+                    { value: 'b', text: "Anemia falciforme." },
+                    { value: 'c', text: "Fibrosis quística." },
+                    { value: 'd', text: "Distrofia muscular." }
+                ]
+            },
+            // Indicador 10.8
+            {
+                id: 'q29',
+                indicator: 'Indicador 10.8: Investiga y explica con interés las aplicaciones de la ingeniería genética en la medicina y la agricultura.',
+                question: "¿Cuál es un beneficio potencial de la ingeniería genética en la agricultura?",
+                options: [
+                    { value: 'a', text: "El desarrollo de cultivos más resistentes a sequías." },
+                    { value: 'b', text: "El aumento de la dependencia de pesticidas." },
+                    { value: 'c', text: "La reducción de la biodiversidad." },
+                    { value: 'd', text: "El desarrollo de técnicas de cultivo tradicionales." }
                 ]
             },
             {
-                question: "¿Qué es el cambio climático?",
-                answers: [
-                    { text: "Un cambio significativo y duradero en los patrones del clima en la Tierra.", correct: true },
-                    { text: "Un cambio temporal en los patrones del clima en la Tierra.", correct: false },
-                    { text: "Un cambio en los patrones del clima en una región específica.", correct: false },
-                    { text: "Un cambio en los patrones del clima en una temporada específica.", correct: false }
+                id: 'q30',
+                indicator: 'Indicador 10.8: Investiga y explica con interés las aplicaciones de la ingeniería genética en la medicina y la agricultura.',
+                question: "¿Cómo puede la ingeniería genética contribuir al tratamiento de enfermedades genéticas?",
+                options: [
+                    { value: 'a', text: "Mediante la terapia génica que corrige defectos genéticos en células." },
+                    { value: 'b', text: "A través de la vacunación tradicional." },
+                    { value: 'c', text: "Mediante la selección de pacientes para ensayos clínicos." },
+                    { value: 'd', text: "A través del diagnóstico por imagen." }
                 ]
             },
             {
-                question: "¿Qué es el calentamiento global?",
-                answers: [
-                    { text: "El aumento gradual de la temperatura media de la atmósfera y los océanos de la Tierra.", correct: true },
-                    { text: "El enfriamiento gradual de la temperatura media de la atmósfera y los océanos de la Tierra.", correct: false },
-                    { text: "El aumento temporal de la temperatura media de la atmósfera y los océanos de la Tierra.", correct: false },
-                    { text: "El enfriamiento temporal de la temperatura media de la atmósfera y los océanos de la Tierra.", correct: false }
+                id: 'q31',
+                indicator: 'Indicador 10.8: Investiga y explica con interés las aplicaciones de la ingeniería genética en la medicina y la agricultura.',
+                question: "¿Qué organismo modificado genéticamente se ha utilizado comúnmente en la investigación científica?",
+                options: [
+                    { value: 'a', text: "El ratón de laboratorio." },
+                    { value: 'b', text: "El perro." },
+                    { value: 'c', text: "La vaca." },
+                    { value: 'd', text: "El elefante." }
                 ]
             },
             {
-                question: "¿Qué es la capa de ozono?",
-                answers: [
-                    { text: "Una capa de la atmósfera rica en ozono que protege la Tierra de la radiación ultravioleta dañina.", correct: true },
-                    { text: "Una capa de la atmósfera rica en oxígeno que protege la Tierra de la radiación ultravioleta dañina.", correct: false },
-                    { text: "Una capa de la atmósfera rica en nitrógeno que protege la Tierra de la radiación ultravioleta dañina.", correct: false },
-                    { text: "Una capa de la atmósfera rica en dióxido de carbono que protege la Tierra de la radiación ultravioleta dañina.", correct: false }
+                id: 'q32',
+                indicator: 'Indicador 10.8: Investiga y explica con interés las aplicaciones de la ingeniería genética en la medicina y la agricultura.',
+                question: "¿Qué técnica de ingeniería genética ha permitido el desarrollo de medicamentos como la insulina recombinante?",
+                options: [
+                    { value: 'a', text: "Terapia génica." },
+                    { value: 'b', text: "Edición de genes." },
+                    { value: 'c', text: "Clonación." },
+                    { value: 'd', text: "Mutagénesis." }
+                ]
+            },
+            // Indicador 10.9
+            {
+                id: 'q33',
+                indicator: 'Indicador 10.9: Experimenta y explica con interés el tipo sanguíneo que presentan los seres humanos.',
+                question: "¿Cuál es el tipo sanguíneo considerado como donante universal?",
+                options: [
+                    { value: 'a', text: "O negativo." },
+                    { value: 'b', text: "AB positivo." },
+                    { value: 'c', text: "A positivo." },
+                    { value: 'd', text: "B negativo." }
+                ]
+            },
+            {
+                id: 'q34',
+                indicator: 'Indicador 10.9: Experimenta y explica con interés el tipo sanguíneo que presentan los seres humanos.',
+                question: "¿Qué determina el tipo sanguíneo de una persona?",
+                options: [
+                    { value: 'a', text: "Los antígenos presentes en los glóbulos rojos." },
+                    { value: 'b', text: "La cantidad de glóbulos blancos en la sangre." },
+                    { value: 'c', text: "El nivel de hemoglobina." },
+                    { value: 'd', text: "La presencia de plaquetas." }
+                ]
+            },
+            {
+                id: 'q35',
+                indicator: 'Indicador 10.9: Experimenta y explica con interés el tipo sanguíneo que presentan los seres humanos.',
+                question: "¿Cuál es la importancia del factor Rh en la sangre?",
+                options: [
+                    { value: 'a', text: "Determina la compatibilidad para transfusiones sanguíneas." },
+                    { value: 'b', text: "Afecta la coagulación de la sangre." },
+                    { value: 'c', text: "Indica el nivel de azúcar en la sangre." },
+                    { value: 'd', text: "Controla el transporte de oxígeno." }
+                ]
+            },
+            {
+                id: 'q36',
+                indicator: 'Indicador 10.9: Experimenta y explica con interés el tipo sanguíneo que presentan los seres humanos.',
+                question: "¿Qué combinación de padres podría producir un hijo con tipo de sangre O?",
+                options: [
+                    { value: 'a', text: "Padre con tipo O y madre con tipo O." },
+                    { value: 'b', text: "Padre con tipo A y madre con tipo B." },
+                    { value: 'c', text: "Padre con tipo AB y madre con tipo AB." },
+                    { value: 'd', text: "Padre con tipo B y madre con tipo O." }
+                ]
+            },
+            // Indicador 10.10
+            {
+                id: 'q37',
+                indicator: 'Indicador 10.10: Formula preguntas relativas a algunas mutaciones genéticas en los seres humanos.',
+                question: "¿Qué preguntas clave deben hacerse sobre los efectos de una mutación genética?",
+                options: [
+                    { value: 'a', text: "¿Es perjudicial o beneficiosa? ¿Cómo afecta la salud?" },
+                    { value: 'b', text: "¿Dónde ocurrió? ¿Quién la causó?" },
+                    { value: 'c', text: "¿Cuándo fue detectada? ¿Cómo se descubrió?" },
+                    { value: 'd', text: "¿Es frecuente en todas las personas?" }
+                ]
+            },
+            {
+                id: 'q38',
+                indicator: 'Indicador 10.10: Formula preguntas relativas a algunas mutaciones genéticas en los seres humanos.',
+                question: "¿Qué preguntas ayudarían a identificar si una mutación es hereditaria?",
+                options: [
+                    { value: 'a', text: "¿Está presente en otros miembros de la familia? ¿Es común en la población general?" },
+                    { value: 'b', text: "¿Ocurrió recientemente? ¿Es letal?" },
+                    { value: 'c', text: "¿Fue causada por factores ambientales? ¿Es reversible?" },
+                    { value: 'd', text: "¿Fue detectada en la infancia? ¿Es curable?" }
+                ]
+            },
+            {
+                id: 'q39',
+                indicator: 'Indicador 10.10: Formula preguntas relativas a algunas mutaciones genéticas en los seres humanos.',
+                question: "¿Qué preguntas son esenciales para comprender las causas de una mutación genética?",
+                options: [
+                    { value: 'a', text: "¿Qué factores ambientales o genéticos la causaron? ¿Cómo se puede prevenir?" },
+                    { value: 'b', text: "¿Es dolorosa? ¿Cuántas personas la tienen?" },
+                    { value: 'c', text: "¿Se puede curar? ¿Es contagiosa?" },
+                    { value: 'd', text: "¿Afecta solo a humanos? ¿Es exclusiva de una región?" }
+                ]
+            },
+            {
+                id: 'q40',
+                indicator: 'Indicador 10.10: Formula preguntas relativas a algunas mutaciones genéticas en los seres humanos.',
+                question: "¿Qué preguntas deben abordarse para evaluar el impacto de una mutación genética en la salud?",
+                options: [
+                    { value: 'a', text: "¿Cómo afecta la calidad de vida? ¿Es tratable con terapias actuales?" },
+                    { value: 'b', text: "¿Es más común en ciertos grupos étnicos? ¿Afecta la longevidad?" },
+                    { value: 'c', text: "¿Es mortal? ¿A qué edad se presenta?" },
+                    { value: 'd', text: "¿Es contagiosa? ¿Se transmite por el aire?" }
+                ]
+            },
+            // Indicador 10.11
+            {
+                id: 'q41',
+                indicator: 'Indicador 10.11: Investiga y describe con responsabilidad algunas anomalías genéticas más frecuentes en humanos.',
+                question: "¿Cuál de las siguientes es una anomalía genética común?",
+                options: [
+                    { value: 'a', text: "Síndrome de Down." },
+                    { value: 'b', text: "Cáncer de piel." },
+                    { value: 'c', text: "Diabetes tipo 2." },
+                    { value: 'd', text: "Asma." }
+                ]
+            },
+            {
+                id: 'q42',
+                indicator: 'Indicador 10.11: Investiga y describe con responsabilidad algunas anomalías genéticas más frecuentes en humanos.',
+                question: "¿Qué causa el síndrome de Down?",
+                options: [
+                    { value: 'a', text: "Una copia extra del cromosoma 21." },
+                    { value: 'b', text: "Una mutación en el gen BRCA1." },
+                    { value: 'c', text: "Un virus durante el embarazo." },
+                    { value: 'd', text: "Una deficiencia de vitaminas." }
+                ]
+            },
+            {
+                id: 'q43',
+                indicator: 'Indicador 10.11: Investiga y describe con responsabilidad algunas anomalías genéticas más frecuentes en humanos.',
+                question: "¿Cuál de las siguientes condiciones es causada por una mutación en un solo gen?",
+                options: [
+                    { value: 'a', text: "Fibrosis quística." },
+                    { value: 'b', text: "Hipertensión." },
+                    { value: 'c', text: "Obesidad." },
+                    { value: 'd', text: "Cardiopatía congénita." }
+                ]
+            },
+            {
+                id: 'q44',
+                indicator: 'Indicador 10.11: Investiga y describe con responsabilidad algunas anomalías genéticas más frecuentes en humanos.',
+                question: "¿Qué condición genética está asociada con la pérdida de la visión debido a la degeneración de la retina?",
+                options: [
+                    { value: 'a', text: "Retinitis pigmentosa." },
+                    { value: 'b', text: "Esclerosis múltiple." },
+                    { value: 'c', text: "Hipotiroidismo." },
+                    { value: 'd', text: "Cataratas." }
+                ]
+            },
+            // Indicador 10.12
+            {
+                id: 'q45',
+                indicator: 'Indicador 10.12: Investiga y explica con interés a las células madre y su importancia en diversos ámbitos de la vida de los seres humanos.',
+                question: "¿Qué son las células madre?",
+                options: [
+                    { value: 'a', text: "Células que tienen la capacidad de diferenciarse en varios tipos de células especializadas." },
+                    { value: 'b', text: "Células que solo pueden convertirse en células musculares." },
+                    { value: 'c', text: "Células que forman las capas externas de la piel." },
+                    { value: 'd', text: "Células que no tienen ninguna función." }
+                ]
+            },
+            {
+                id: 'q46',
+                indicator: 'Indicador 10.12: Investiga y explica con interés a las células madre y su importancia en diversos ámbitos de la vida de los seres humanos.',
+                question: "¿Cuál es una de las aplicaciones de las células madre en la medicina?",
+                options: [
+                    { value: 'a', text: "Regeneración de tejidos dañados." },
+                    { value: 'b', text: "Tratamiento de enfermedades virales." },
+                    { value: 'c', text: "Producción de hormonas." },
+                    { value: 'd', text: "Control de la presión arterial." }
+                ]
+            },
+            {
+                id: 'q47',
+                indicator: 'Indicador 10.12: Investiga y explica con interés a las células madre y su importancia en diversos ámbitos de la vida de los seres humanos.',
+                question: "¿Qué tipo de células madre tiene el potencial de convertirse en cualquier tipo de célula del cuerpo?",
+                options: [
+                    { value: 'a', text: "Células madre pluripotentes." },
+                    { value: 'b', text: "Células madre unipotentes." },
+                    { value: 'c', text: "Células madre bipotentes." },
+                    { value: 'd', text: "Células madre oligopotentes." }
+                ]
+            },
+            {
+                id: 'q48',
+                indicator: 'Indicador 10.12: Investiga y explica con interés a las células madre y su importancia en diversos ámbitos de la vida de los seres humanos.',
+                question: "¿En qué área de la medicina las células madre han mostrado un gran potencial para tratamientos futuros?",
+                options: [
+                    { value: 'a', text: "Medicina regenerativa." },
+                    { value: 'b', text: "Medicina preventiva." },
+                    { value: 'c', text: "Medicina deportiva." },
+                    { value: 'd', text: "Medicina alternativa." }
+                ]
+            },
+            // Indicador 10.13
+            {
+                id: 'q49',
+                indicator: 'Indicador 10.13: Investiga y explica críticamente los aspectos fundamentales que trata la bioética y las mutaciones inducidas en el laboratorio.',
+                question: "¿Qué es la bioética?",
+                options: [
+                    { value: 'a', text: "El estudio de los aspectos éticos relacionados con la biología y la medicina." },
+                    { value: 'b', text: "El estudio de la biodiversidad en un ecosistema." },
+                    { value: 'c', text: "El análisis de los efectos de las mutaciones genéticas." },
+                    { value: 'd', text: "La aplicación de la biotecnología en la agricultura." }
+                ]
+            },
+            {
+                id: 'q50',
+                indicator: 'Indicador 10.13: Investiga y explica críticamente los aspectos fundamentales que trata la bioética y las mutaciones inducidas en el laboratorio.',
+                question: "¿Qué cuestiones éticas pueden surgir al inducir mutaciones en un laboratorio?",
+                options: [
+                    { value: 'a', text: "Las implicaciones para la salud humana y la manipulación de la vida." },
+                    { value: 'b', text: "El aumento de la biodiversidad en la naturaleza." },
+                    { value: 'c', text: "La mejora de las técnicas de cultivo agrícola." },
+                    { value: 'd', text: "La disminución de la resistencia a enfermedades." }
+                ]
+            },
+            {
+                id: 'q51',
+                indicator: 'Indicador 10.13: Investiga y explica críticamente los aspectos fundamentales que trata la bioética y las mutaciones inducidas en el laboratorio.',
+                question: "¿Cuál es un principio clave en la bioética relacionado con la investigación genética?",
+                options: [
+                    { value: 'a', text: "El respeto a la autonomía del individuo." },
+                    { value: 'b', text: "La promoción del uso de pesticidas." },
+                    { value: 'c', text: "El fomento de la clonación en masa." },
+                    { value: 'd', text: "El rechazo a todas las formas de tecnología." }
+                ]
+            },
+            {
+                id: 'q52',
+                indicator: 'Indicador 10.13: Investiga y explica críticamente los aspectos fundamentales que trata la bioética y las mutaciones inducidas en el laboratorio.',
+                question: "¿Qué dilema ético puede presentarse al utilizar técnicas de edición genética en humanos?",
+                options: [
+                    { value: 'a', text: "El riesgo de crear desigualdades sociales debido a la manipulación genética." },
+                    { value: 'b', text: "El aumento de la biodiversidad en un ecosistema." },
+                    { value: 'c', text: "La mejora de la calidad del aire." },
+                    { value: 'd', text: "La producción masiva de alimentos." }
                 ]
             }
         ];
 
-        let attempt = 0;
-        const maxAttempts = 3;
+        const correctAnswerKeys = { 
+            q1: 'a', q2: 'a', q3: 'a', q4: 'a', q5: 'a', q6: 'a', q7: 'a', q8: 'a', q9: 'a', q10: 'a', 
+            q11: 'a', q12: 'a', q13: 'a', q14: 'a', q15: 'a', q16: 'a', q17: 'a', q18: 'a', q19: 'a', q20: 'a', 
+            q21: 'a', q22: 'a', q23: 'a', q24: 'a', q25: 'a', q26: 'a', q27: 'a', q28: 'a', q29: 'a', q30: 'a', 
+            q31: 'a', q32: 'a', q33: 'a', q34: 'a', q35: 'a', q36: 'a', q37: 'a', q38: 'a', q39: 'a', q40: 'a', 
+            q41: 'a', q42: 'a', q43: 'a', q44: 'a', q45: 'a', q46: 'a', q47: 'a', q48: 'a', q49: 'a', q50: 'a', 
+            q51: 'a', q52: 'a'
+        };
 
         function shuffle(array) {
             for (let i = array.length - 1; i > 0; i--) {
@@ -313,80 +707,99 @@
             return array;
         }
 
-        function loadQuiz() {
-            const quizContainer = document.getElementById('quiz');
-            quizContainer.innerHTML = '';
-            quizData.forEach((data, index) => {
-                const questionContainer = document.createElement('div');
-                questionContainer.className = 'question';
+        function displayQuestions() {
+            const container = document.getElementById('questions-container');
+            const shuffledQuestions = shuffle([...questions]);
 
-                const questionTitle = document.createElement('h3');
-                questionTitle.innerText = `${index + 1}. ${data.question}`;
-                questionContainer.appendChild(questionTitle);
-
-                const optionsList = document.createElement('ul');
-                optionsList.className = 'options';
-
-                shuffle(data.answers).forEach(answer => {
-                    const option = document.createElement('li');
-                    const optionLabel = document.createElement('label');
-                    const optionInput = document.createElement('input');
-                    optionInput.type = 'radio';
-                    optionInput.name = `question${index}`;
-                    optionInput.value = answer.correct;
-                    optionLabel.appendChild(optionInput);
-                    optionLabel.appendChild(document.createTextNode(answer.text));
-                    option.appendChild(optionLabel);
-                    optionsList.appendChild(option);
-                });
-
-                questionContainer.appendChild(optionsList);
-                quizContainer.appendChild(questionContainer);
+            shuffledQuestions.forEach((q, index) => {
+                const questionElement = document.createElement('div');
+                questionElement.classList.add('question');
+                questionElement.innerHTML = `
+                    <h3>${q.indicator}</h3>
+                    <p>${index + 1}. ${q.question}</p>
+                    ${q.options.map(option => `
+                        <input type="radio" name="${q.id}" value="${option.value}" required> ${option.value}) ${option.text}<br>
+                    `).join('')}
+                `;
+                container.appendChild(questionElement);
             });
         }
 
-        function submitQuiz() {
-            if (attempt >= maxAttempts) {
-                alert('Has alcanzado el número máximo de intentos.');
+        function startTimer() {
+            document.getElementById('timer').classList.remove('hidden');
+            startTime = new Date();
+            const timerInterval = setInterval(() => {
+                const minutes = Math.floor(timeRemaining / 60);
+                const seconds = timeRemaining % 60;
+                timerElement.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+                if (timeRemaining === 0) {
+                    clearInterval(timerInterval);
+                    showResults("Tiempo agotado. No se pudo completar la evaluación.", []);
+                }
+                timeRemaining--;
+            }, 1000);
+        }
+
+        document.getElementById('infoForm').addEventListener('submit', function (event) {
+            event.preventDefault();
+            const name = document.getElementById('name').value;
+            const nie = document.getElementById('nie').value;
+
+            if (!nieList.includes(nie)) {
+                alert("NIE no autorizado.");
                 return;
             }
 
-            const resultsContainer = document.getElementById('results');
-            const answers = document.querySelectorAll('input[type="radio"]:checked');
-            let score = 0;
+            document.getElementById('studentInfoForm').classList.add('hidden');
+            document.getElementById('quiz').classList.remove('hidden');
+            displayQuestions();
+            startTimer();
+        });
 
-            quizData.forEach((data, index) => {
-                const selected = answers[index] ? answers[index].value === 'true' : null;
-                if (selected === true) {
-                    score += 0.4; // Each correct answer is worth 0.4 points
+        document.getElementById('submitQuiz').addEventListener('click', function () {
+            let correctAnswers = 0;
+            let incorrectAnswers = [];
+
+            questions.forEach(q => {
+                const selectedAnswer = document.querySelector(`input[name="${q.id}"]:checked`);
+                if (selectedAnswer) {
+                    if (selectedAnswer.value === correctAnswerKeys[q.id]) {
+                        correctAnswers++;
+                    } else {
+                        incorrectAnswers.push(`Pregunta ${q.id.substring(1)} incorrecta.`);
+                    }
                 }
             });
 
-            score = Math.round(score * 10) / 10; // Round to one decimal place
-            let feedback = quizData.map((data, index) => {
-                const selected = answers[index] ? answers[index].value === 'true' : null;
-                let result;
-                if (selected === null) {
-                    result = "No contestada";
-                } else if (selected === true) {
-                    result = "Correcta";
-                } else {
-                    result = "Incorrecta";
-                }
-                return `<p>${index + 1}. ${result}</p>`;
-            }).join("");
+            const score = (correctAnswers / questions.length) * 10;
+            const endTime = new Date();
+            const timeTaken = Math.floor((endTime - startTime) / 1000); // Tiempo en segundos
 
-            resultsContainer.innerHTML = `<h3>Resultados:</h3><p>Puntaje: ${score} / 10</p>${feedback}`;
+            showResults(`Calificación: ${score.toFixed(2)} / 10`, incorrectAnswers, timeTaken);
+        });
 
-            attempt++;
-            if (attempt >= maxAttempts) {
-                alert('Has alcanzado el número máximo de intentos.');
-            }
+        function showResults(scoreText, incorrectAnswers, timeTaken) {
+            const date = new Date();
+            const minutesTaken = Math.floor(timeTaken / 60);
+            const secondsTaken = timeTaken % 60;
+
+            document.getElementById('quiz').classList.add('hidden');
+            document.getElementById('resultsModal').style.display = 'block';
+            document.getElementById('overlay').style.display = 'block';
+
+            document.getElementById('date').textContent = `Fecha: ${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
+            document.getElementById('timeTaken').textContent = `Tiempo tomado: ${minutesTaken} minutos y ${secondsTaken} segundos`;
+            document.getElementById('unitEvaluated').textContent = `Unidad Evaluada: Unidad 10: La Revolución Genética`;
+            document.getElementById('studentName').textContent = `Nombre del Estudiante: ${document.getElementById('name').value}`;
+            document.getElementById('studentNIE').textContent = `NIE: ${document.getElementById('nie').value}`;
+            document.getElementById('score').textContent = scoreText;
+            document.getElementById('incorrectAnswers').textContent = incorrectAnswers.join(', ');
         }
 
-        document.getElementById('submit').addEventListener('click', submitQuiz);
-
-        loadQuiz();
+        document.getElementById('closeModal').addEventListener('click', function () {
+            document.getElementById('resultsModal').style.display = 'none';
+            document.getElementById('overlay').style.display = 'none';
+        });
     </script>
 </body>
 </html>
