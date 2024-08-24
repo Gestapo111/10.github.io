@@ -7,697 +7,718 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            padding: 20px;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            user-select: none;
         }
+        h1 {
+            color: #333;
+        }
+        .quiz-container {
+            background-color: #fff;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 80%;
+            max-width: 800px;
+            display: none;
+        }
+        .indicator {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .question {
+            margin-bottom: 15px;
+        }
+        .options {
+            list-style-type: none;
+            padding: 0;
+        }
+        .options li {
+            margin-bottom: 10px;
+        }
+        button {
+            background-color: #28a745;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #218838;
+        }
+        #results {
+            margin-top: 20px;
+            font-size: 18px;
+        }
+        footer {
+            background-color: #333;
+            color: #fff;
+            padding: 10px;
+            width: 100%;
+            text-align: center;
+            position: fixed;
+            bottom: 0;
+        }
+        .input-field {
+            margin-bottom: 10px;
+        }
+        .input-field label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        .input-field input {
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+        }
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.4);
+            padding-top: 60px;
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: 5% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 600px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+        }
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        /* Cronómetro flotante */
         #timer {
             position: fixed;
             top: 10px;
             right: 10px;
-            background-color: #f2f2f2;
-            border: 1px solid #ccc;
             padding: 10px;
+            background-color: green;
+            color: white;
             font-size: 18px;
             border-radius: 5px;
         }
-        .hidden {
-            display: none;
+        /* Estilo para los números de preguntas incorrectas */
+        .incorrect-answers {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
         }
-        .question {
-            margin-bottom: 20px;
-        }
-        .question h3 {
-            margin-bottom: 10px;
-        }
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-        }
-        #resultsModal {
-            display: none;
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background-color: white;
-            padding: 20px;
-            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
-            z-index: 1000;
-        }
-        #overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            z-index: 500;
+        .incorrect-answers div {
+            width: 18%;
+            text-align: center;
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            padding: 5px;
+            border-radius: 5px;
         }
     </style>
 </head>
 <body>
-    <div id="timer" class="hidden">Tiempo restante: <span id="time">30:00</span></div>
+    <h1>Evaluación Unidad 10: La Revolución Genética</h1>
+    <div class="quiz-container">
+        <div id="quiz"></div>
+        <button id="submit">Enviar respuestas</button>
+    </div>
+    <footer>
+        &copy; Derechos Reservados Prof. Alberto Sanchez
+    </footer>
 
-    <div class="container">
-        <div id="studentInfoForm">
-            <h2>Información del Estudiante</h2>
-            <form id="infoForm">
-                <label for="name">Nombre del Estudiante:</label>
-                <input type="text" id="name" required><br><br>
+    <!-- Modal para solicitar nombre y NIE -->
+    <div id="infoModal" class="modal">
+        <div class="modal-content">
+            <h2>Por favor, ingresa tus datos</h2>
+            <div class="input-field">
+                <label for="fullname">Nombre completo:</label>
+                <input type="text" id="fullname" required>
+            </div>
+            <div class="input-field">
                 <label for="nie">NIE:</label>
-                <input type="text" id="nie" required><br><br>
-                <label for="unit">Unidad Evaluada:</label>
-                <input type="text" id="unit" value="Unidad 10: La Revolución Genética" readonly><br><br>
-                <button type="submit">Iniciar Evaluación</button>
-            </form>
+                <input type="text" id="nie" required>
+            </div>
+            <button id="startQuiz">Comenzar Evaluación</button>
         </div>
-
-        <div id="quiz" class="hidden">
-            <h2>Evaluación Unidad 10: La Revolución Genética</h2>
-
-            <div id="questions-container"></div>
-
-            <button id="submitQuiz">OBTENER CALIFICACIÓN</button>
-        </div>
-
-        <div id="resultsModal">
-            <h2>Resultados</h2>
-            <p id="date"></p>
-            <p id="timeTaken"></p>
-            <p id="unitEvaluated"></p>
-            <p id="studentName"></p>
-            <p id="studentNIE"></p>
-            <p id="score"></p>
-            <p id="incorrectAnswers"></p>
-            <button id="closeModal">Cerrar</button>
-        </div>
-
-        <div id="overlay"></div>
     </div>
 
-    <script>
-        const nieList = ["4267837", "3850952", "3851018", "5032035", "19806181", "6297536", "2608724", "6262810", "4267838", "20162435", "3850923", "19806209", "4267828", "3850942"];
-        const maxTime = 30 * 60; // 30 minutos en segundos
-        let timeRemaining = maxTime;
-        const timerElement = document.getElementById('time');
-        let startTime;
+    <!-- Modal de resultados -->
+    <div id="resultModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Resultados de la Evaluación</h2>
+            <p id="modalName"></p>
+            <p id="modalNIE"></p>
+            <h3>Preguntas incorrectas:</h3>
+            <div id="modalIncorrectAnswers" class="incorrect-answers"></div>
+            <h3>Detalles:</h3>
+            <p id="modalDetails"></p>
+            <h3>Intentos de manipulación detectados:</h3>
+            <p id="manipulationCount"></p>
+            <h3>Reintentos:</h3>
+            <p id="attemptCount"></p>
+        </div>
+    </div>
 
-        const questions = [
-            // Indicador 10.1
+    <div id="timer">30:00</div>
+
+    <script>
+        const authorizedNIEs = [
+            "4267837", "3850952", "3851018", "5032035", "19806181", "6297536", 
+            "2608724", "6262810", "4267838", "20162435", "3850923", "19806209", 
+            "4267828", "3850942"
+        ];
+
+        const quizData = [
             {
-                id: 'q1',
-                indicator: 'Indicador 10.1: Investiga y describe con interés los aportes de Mendel en la herencia genética.',
-                question: "¿Cuál fue uno de los principales descubrimientos de Gregor Mendel en la genética?",
-                options: [
-                    { value: 'a', text: "Las leyes de la herencia." },
-                    { value: 'b', text: "La estructura del ADN." },
-                    { value: 'c', text: "La teoría de la evolución." },
-                    { value: 'd', text: "La selección natural." }
+                indicator: "Indicador 10.1: Investiga y describe con interés los aportes de Mendel en la herencia genética.",
+                questions: [
+                    {
+                        question: "¿Cómo se denomina la cruz que Mendel utilizó para estudiar la herencia de dos características al mismo tiempo?",
+                        answers: [
+                            { text: "Cruz dihíbrida.", correct: true },
+                            { text: "Cruz monohíbrida.", correct: false },
+                            { text: "Cruz trihíbrida.", correct: false },
+                            { text: "Cruz tetrálica.", correct: false }
+                        ]
+                    },
+                    {
+                        question: "¿Qué es un alelo según las leyes de Mendel?",
+                        answers: [
+                            { text: "Una versión alternativa de un gen.", correct: true },
+                            { text: "Una célula que se divide.", correct: false },
+                            { text: "Una proteína que se sintetiza en el núcleo.", correct: false },
+                            { text: "Un tipo de célula reproductora.", correct: false }
+                        ]
+                    },
+                    {
+                        question: "¿Qué plantas utilizó Mendel para sus experimentos sobre la herencia?",
+                        answers: [
+                            { text: "Plantas de guisante.", correct: true },
+                            { text: "Plantas de trigo.", correct: false },
+                            { text: "Plantas de maíz.", correct: false },
+                            { text: "Plantas de girasol.", correct: false }
+                        ]
+                    },
+                    {
+                        question: "¿Cuál fue uno de los principales descubrimientos de Gregor Mendel en la genética?",
+                        answers: [
+                            { text: "Las leyes de la herencia.", correct: true },
+                            { text: "La estructura del ADN.", correct: false },
+                            { text: "La teoría de la evolución.", correct: false },
+                            { text: "La selección natural.", correct: false }
+                        ]
+                    }
                 ]
             },
             {
-                id: 'q2',
-                indicator: 'Indicador 10.1: Investiga y describe con interés los aportes de Mendel en la herencia genética.',
-                question: "¿Qué plantas utilizó Mendel para sus experimentos sobre la herencia?",
-                options: [
-                    { value: 'a', text: "Plantas de guisante." },
-                    { value: 'b', text: "Plantas de trigo." },
-                    { value: 'c', text: "Plantas de maíz." },
-                    { value: 'd', text: "Plantas de girasol." }
+                indicator: "Indicador 10.2: Indaga, analiza y explica los principios de la herencia y los patrones de herencia mendeliana y no mendeliana.",
+                questions: [
+                    {
+                        question: "¿Cuál de los siguientes es un ejemplo de herencia no mendeliana?",
+                        answers: [
+                            { text: "Herencia poligénica.", correct: true },
+                            { text: "Herencia dominante-recesiva.", correct: false },
+                            { text: "Herencia de carácter único.", correct: false },
+                            { text: "Herencia genética básica.", correct: false }
+                        ]
+                    },
+                    {
+                        question: "¿Qué tipo de herencia ocurre cuando ambos alelos de un gen se expresan de manera equitativa en el fenotipo?",
+                        answers: [
+                            { text: "Codominancia.", correct: true },
+                            { text: "Dominancia incompleta.", correct: false },
+                            { text: "Herencia ligada al sexo.", correct: false },
+                            { text: "Herencia poligénica.", correct: false }
+                        ]
+                    },
+                    {
+                        question: "¿Qué es la herencia mendeliana?",
+                        answers: [
+                            { text: "La herencia de características que siguen las leyes descubiertas por Mendel.", correct: true },
+                            { text: "La herencia que no sigue las leyes descubiertas por Mendel.", correct: false },
+                            { text: "La herencia ligada al sexo.", correct: false },
+                            { text: "La herencia debida a mutaciones.", correct: false }
+                        ]
+                    },
+                    {
+                        question: "¿Cuál es el patrón de herencia cuando un solo gen afecta múltiples características?",
+                        answers: [
+                            { text: "Pleiotropía.", correct: true },
+                            { text: "Epistasis.", correct: false },
+                            { text: "Herencia poligénica.", correct: false },
+                            { text: "Codominancia.", correct: false }
+                        ]
+                    }
                 ]
             },
             {
-                id: 'q3',
-                indicator: 'Indicador 10.1: Investiga y describe con interés los aportes de Mendel en la herencia genética.',
-                question: "¿Qué es un alelo según las leyes de Mendel?",
-                options: [
-                    { value: 'a', text: "Una versión alternativa de un gen." },
-                    { value: 'b', text: "Una célula que se divide." },
-                    { value: 'c', text: "Una proteína que se sintetiza en el núcleo." },
-                    { value: 'd', text: "Un tipo de célula reproductora." }
+                indicator: "Indicador 10.3: Indaga y explica con claridad la estructura y función del ADN y ARN.",
+                questions: [
+                    {
+                        question: "¿Qué molécula lleva la información genética del ADN hacia el ribosoma para la síntesis de proteínas?",
+                        answers: [
+                            { text: "ARN mensajero (ARNm).", correct: true },
+                            { text: "ARN de transferencia (ARNt).", correct: false },
+                            { text: "ARN ribosómico (ARNr).", correct: false },
+                            { text: "ADN mitocondrial.", correct: false }
+                        ]
+                    },
+                    {
+                        question: "¿Qué diferencia al ARN del ADN?",
+                        answers: [
+                            { text: "El ARN tiene uracilo en lugar de timina.", correct: true },
+                            { text: "El ARN es de doble cadena.", correct: false },
+                            { text: "El ARN tiene desoxirribosa en lugar de ribosa.", correct: false },
+                            { text: "El ARN se encuentra solo en el núcleo.", correct: false }
+                        ]
+                    },
+                    {
+                        question: "¿Cuál es el proceso por el cual el ADN se transcribe en ARN?",
+                        answers: [
+                            { text: "Transcripción.", correct: true },
+                            { text: "Traducción.", correct: false },
+                            { text: "Replicación.", correct: false },
+                            { text: "Mutación.", correct: false }
+                        ]
+                    },
+                    {
+                        question: "¿Cuál es la función principal del ADN en las células?",
+                        answers: [
+                            { text: "Almacenar y transmitir información genética.", correct: true },
+                            { text: "Producir energía.", correct: false },
+                            { text: "Regular el metabolismo.", correct: false },
+                            { text: "Transportar nutrientes.", correct: false }
+                        ]
+                    }
                 ]
             },
             {
-                id: 'q4',
-                indicator: 'Indicador 10.1: Investiga y describe con interés los aportes de Mendel en la herencia genética.',
-                question: "¿Cómo se denomina la cruz que Mendel utilizó para estudiar la herencia de dos características al mismo tiempo?",
-                options: [
-                    { value: 'a', text: "Cruz dihíbrida." },
-                    { value: 'b', text: "Cruz monohíbrida." },
-                    { value: 'c', text: "Cruz trihíbrida." },
-                    { value: 'd', text: "Cruz tetrálica." }
-                ]
-            },
-            // Indicador 10.2
-            {
-                id: 'q5',
-                indicator: 'Indicador 10.2: Indaga, analiza y explica los principios de la herencia y los patrones de herencia mendeliana y no mendeliana.',
-                question: "¿Qué es la herencia mendeliana?",
-                options: [
-                    { value: 'a', text: "La herencia de características que siguen las leyes descubiertas por Mendel." },
-                    { value: 'b', text: "La herencia que no sigue las leyes descubiertas por Mendel." },
-                    { value: 'c', text: "La herencia ligada al sexo." },
-                    { value: 'd', text: "La herencia debida a mutaciones." }
-                ]
-            },
-            {
-                id: 'q6',
-                indicator: 'Indicador 10.2: Indaga, analiza y explica los principios de la herencia y los patrones de herencia mendeliana y no mendeliana.',
-                question: "¿Cuál de los siguientes es un ejemplo de herencia no mendeliana?",
-                options: [
-                    { value: 'a', text: "Herencia poligénica." },
-                    { value: 'b', text: "Herencia dominante-recesiva." },
-                    { value: 'c', text: "Herencia de carácter único." },
-                    { value: 'd', text: "Herencia genética básica." }
-                ]
-            },
-            {
-                id: 'q7',
-                indicator: 'Indicador 10.2: Indaga, analiza y explica los principios de la herencia y los patrones de herencia mendeliana y no mendeliana.',
-                question: "¿Cuál es el patrón de herencia cuando un solo gen afecta múltiples características?",
-                options: [
-                    { value: 'a', text: "Pleiotropía." },
-                    { value: 'b', text: "Epistasis." },
-                    { value: 'c', text: "Herencia poligénica." },
-                    { value: 'd', text: "Codominancia." }
+                indicator: "Indicador 10.4: Experimenta y explica con claridad el proceso de replicación del ADN y la síntesis de proteínas.",
+                questions: [
+                    {
+                        question: "¿Cuál es el proceso mediante el cual la información del ARN se traduce en una secuencia de aminoácidos para formar una proteína?",
+                        answers: [
+                            { text: "Traducción.", correct: true },
+                            { text: "Transcripción.", correct: false },
+                            { text: "Replicación.", correct: false },
+                            { text: "Mutación.", correct: false }
+                        ]
+                    },
+                    {
+                        question: "¿Cuál es la primera etapa del proceso de replicación del ADN?",
+                        answers: [
+                            { text: "Desenrollamiento de la doble hélice.", correct: true },
+                            { text: "Unión de los nucleótidos.", correct: false },
+                            { text: "Formación de la cadena complementaria.", correct: false },
+                            { text: "Síntesis de proteínas.", correct: false }
+                        ]
+                    },
+                    {
+                        question: "¿Cuál es el propósito de la replicación del ADN?",
+                        answers: [
+                            { text: "Duplicar el material genético antes de la división celular.", correct: true },
+                            { text: "Producir ARN para la síntesis de proteínas.", correct: false },
+                            { text: "Reparar las mutaciones en el ADN.", correct: false },
+                            { text: "Regular la expresión génica.", correct: false }
+                        ]
+                    }
                 ]
             },
             {
-                id: 'q8',
-                indicator: 'Indicador 10.2: Indaga, analiza y explica los principios de la herencia y los patrones de herencia mendeliana y no mendeliana.',
-                question: "¿Qué tipo de herencia ocurre cuando ambos alelos de un gen se expresan de manera equitativa en el fenotipo?",
-                options: [
-                    { value: 'a', text: "Codominancia." },
-                    { value: 'b', text: "Dominancia incompleta." },
-                    { value: 'c', text: "Herencia ligada al sexo." },
-                    { value: 'd', text: "Herencia poligénica." }
-                ]
-            },
-            // Indicador 10.3
-            {
-                id: 'q9',
-                indicator: 'Indicador 10.3: Indaga y explica con claridad la estructura y función del ADN y ARN.',
-                question: "¿Cuál es la función principal del ADN en las células?",
-                options: [
-                    { value: 'a', text: "Almacenar y transmitir información genética." },
-                    { value: 'b', text: "Producir energía." },
-                    { value: 'c', text: "Regular el metabolismo." },
-                    { value: 'd', text: "Transportar nutrientes." }
-                ]
-            },
-            {
-                id: 'q10',
-                indicator: 'Indicador 10.3: Indaga y explica con claridad la estructura y función del ADN y ARN.',
-                question: "¿Qué diferencia al ARN del ADN?",
-                options: [
-                    { value: 'a', text: "El ARN tiene uracilo en lugar de timina." },
-                    { value: 'b', text: "El ARN es de doble cadena." },
-                    { value: 'c', text: "El ARN tiene desoxirribosa en lugar de ribosa." },
-                    { value: 'd', text: "El ARN se encuentra solo en el núcleo." }
-                ]
-            },
-            {
-                id: 'q11',
-                indicator: 'Indicador 10.3: Indaga y explica con claridad la estructura y función del ADN y ARN.',
-                question: "¿Cuál es el proceso por el cual el ADN se transcribe en ARN?",
-                options: [
-                    { value: 'a', text: "Transcripción." },
-                    { value: 'b', text: "Traducción." },
-                    { value: 'c', text: "Replicación." },
-                    { value: 'd', text: "Mutación." }
+                indicator: "Indicador 10.5: Indaga y describe con claridad el código genético y sus implicaciones en la herencia.",
+                questions: [
+                    {
+                        question: "¿Qué es el código genético?",
+                        answers: [
+                            { text: "Es un conjunto de reglas que define cómo se traducen las secuencias de nucleótidos en proteínas.", correct: true },
+                            { text: "Es la estructura física del ADN.", correct: false },
+                            { text: "Es la secuencia de aminoácidos en una proteína.", correct: false },
+                            { text: "Es el conjunto de genes que posee un organismo.", correct: false }
+                        ]
+                    },
+                    {
+                        question: "¿Qué significa que el código genético sea universal?",
+                        answers: [
+                            { text: "Que es prácticamente el mismo en todos los organismos vivos.", correct: true },
+                            { text: "Que puede cambiar de un organismo a otro.", correct: false },
+                            { text: "Que solo se encuentra en organismos multicelulares.", correct: false },
+                            { text: "Que se refiere solo a los seres humanos.", correct: false }
+                        ]
+                    },
+                    {
+                        question: "¿Cuál es la función del ARN mensajero (ARNm) en el proceso del código genético?",
+                        answers: [
+                            { text: "Transportar la información genética del ADN al ribosoma para la síntesis de proteínas.", correct: true },
+                            { text: "Ensamblar los aminoácidos en el ribosoma.", correct: false },
+                            { text: "Regresar la información genética al núcleo.", correct: false },
+                            { text: "Eliminar mutaciones en la secuencia genética.", correct: false }
+                        ]
+                    },
+                    {
+                        question: "¿Cómo se denominan los bloques de construcción que forman las proteínas?",
+                        answers: [
+                            { text: "Aminoácidos.", correct: true },
+                            { text: "Nucleótidos.", correct: false },
+                            { text: "Azúcares.", correct: false },
+                            { text: "Fosfatos.", correct: false }
+                        ]
+                    }
                 ]
             },
             {
-                id: 'q12',
-                indicator: 'Indicador 10.3: Indaga y explica con claridad la estructura y función del ADN y ARN.',
-                question: "¿Qué molécula lleva la información genética del ADN hacia el ribosoma para la síntesis de proteínas?",
-                options: [
-                    { value: 'a', text: "ARN mensajero (ARNm)." },
-                    { value: 'b', text: "ARN de transferencia (ARNt)." },
-                    { value: 'c', text: "ARN ribosómico (ARNr)." },
-                    { value: 'd', text: "ADN mitocondrial." }
-                ]
-            },
-            // Indicador 10.4
-            {
-                id: 'q13',
-                indicator: 'Indicador 10.4: Experimenta y explica con claridad el proceso de replicación del ADN y la síntesis de proteínas.',
-                question: "¿Cuál es la primera etapa del proceso de replicación del ADN?",
-                options: [
-                    { value: 'a', text: "Desenrollamiento de la doble hélice." },
-                    { value: 'b', text: "Unión de los nucleótidos." },
-                    { value: 'c', text: "Formación de la cadena complementaria." },
-                    { value: 'd', text: "Síntesis de proteínas." }
-                ]
-            },
-            {
-                id: 'q14',
-                indicator: 'Indicador 10.4: Experimenta y explica con claridad el proceso de replicación del ADN y la síntesis de proteínas.',
-                question: "¿Cuál es el propósito de la replicación del ADN?",
-                options: [
-                    { value: 'a', text: "Duplicar el material genético antes de la división celular." },
-                    { value: 'b', text: "Producir ARN para la síntesis de proteínas." },
-                    { value: 'c', text: "Reparar las mutaciones en el ADN." },
-                    { value: 'd', text: "Regular la expresión génica." }
-                ]
-            },
-            {
-                id: 'q15',
-                indicator: 'Indicador 10.4: Experimenta y explica con claridad el proceso de replicación del ADN y la síntesis de proteínas.',
-                question: "¿En qué orgánulo celular tiene lugar la síntesis de proteínas?",
-                options: [
-                    { value: 'a', text: "En los ribosomas." },
-                    { value: 'b', text: "En el núcleo." },
-                    { value: 'c', text: "En las mitocondrias." },
-                    { value: 'd', text: "En el aparato de Golgi." }
+                indicator: "Indicador 10.6: Investiga y explica con responsabilidad las técnicas de ingeniería genética y sus aplicaciones.",
+                questions: [
+                    {
+                        question: "¿Cuál es una aplicación común de la ingeniería genética en la agricultura?",
+                        answers: [
+                            { text: "El desarrollo de cultivos transgénicos resistentes a plagas.", correct: true },
+                            { text: "La selección de semillas tradicionales.", correct: false },
+                            { text: "El uso de fertilizantes orgánicos.", correct: false },
+                            { text: "La rotación de cultivos.", correct: false }
+                        ]
+                    },
+                    {
+                        question: "¿Qué es la ingeniería genética?",
+                        answers: [
+                            { text: "Es la manipulación directa del ADN de un organismo para alterar sus características.", correct: true },
+                            { text: "Es el estudio de las mutaciones genéticas en la naturaleza.", correct: false },
+                            { text: "Es la selección natural de especies en un ecosistema.", correct: false },
+                            { text: "Es el cruce de diferentes especies para crear nuevas.", correct: false }
+                        ]
+                    },
+                    {
+                        question: "¿Qué técnica permite insertar un gen específico en un organismo para darle una nueva característica?",
+                        answers: [
+                            { text: "Transferencia génica.", correct: true },
+                            { text: "Clonación.", correct: false },
+                            { text: "Mutagénesis.", correct: false },
+                            { text: "Secuenciación de ADN.", correct: false }
+                        ]
+                    },
+                    {
+                        question: "¿Cuál es una posible aplicación de la ingeniería genética en la medicina?",
+                        answers: [
+                            { text: "La terapia génica para tratar enfermedades genéticas.", correct: true },
+                            { text: "El uso de antibióticos convencionales.", correct: false },
+                            { text: "El diagnóstico por imagen.", correct: false },
+                            { text: "El desarrollo de vacunas tradicionales.", correct: false }
+                        ]
+                    }
                 ]
             },
             {
-                id: 'q16',
-                indicator: 'Indicador 10.4: Experimenta y explica con claridad el proceso de replicación del ADN y la síntesis de proteínas.',
-                question: "¿Cuál es el proceso mediante el cual la información del ARN se traduce en una secuencia de aminoácidos para formar una proteína?",
-                options: [
-                    { value: 'a', text: "Traducción." },
-                    { value: 'b', text: "Transcripción." },
-                    { value: 'c', text: "Replicación." },
-                    { value: 'd', text: "Mutación." }
-                ]
-            },
-            // Indicador 10.5
-            {
-                id: 'q17',
-                indicator: 'Indicador 10.5: Indaga y describe con claridad el código genético y sus implicaciones en la herencia.',
-                question: "¿Qué es el código genético?",
-                options: [
-                    { value: 'a', text: "Es un conjunto de reglas que define cómo se traducen las secuencias de nucleótidos en proteínas." },
-                    { value: 'b', text: "Es la estructura física del ADN." },
-                    { value: 'c', text: "Es la secuencia de aminoácidos en una proteína." },
-                    { value: 'd', text: "Es el conjunto de genes que posee un organismo." }
-                ]
-            },
-            {
-                id: 'q18',
-                indicator: 'Indicador 10.5: Indaga y describe con claridad el código genético y sus implicaciones en la herencia.',
-                question: "¿Cómo se denominan los bloques de construcción que forman las proteínas?",
-                options: [
-                    { value: 'a', text: "Aminoácidos." },
-                    { value: 'b', text: "Nucleótidos." },
-                    { value: 'c', text: "Azúcares." },
-                    { value: 'd', text: "Fosfatos." }
-                ]
-            },
-            {
-                id: 'q19',
-                indicator: 'Indicador 10.5: Indaga y describe con claridad el código genético y sus implicaciones en la herencia.',
-                question: "¿Qué significa que el código genético sea universal?",
-                options: [
-                    { value: 'a', text: "Que es prácticamente el mismo en todos los organismos vivos." },
-                    { value: 'b', text: "Que puede cambiar de un organismo a otro." },
-                    { value: 'c', text: "Que solo se encuentra en organismos multicelulares." },
-                    { value: 'd', text: "Que se refiere solo a los seres humanos." }
+                indicator: "Indicador 10.7: Indaga y describe con precisión las mutaciones génicas y cromosómicas.",
+                questions: [
+                    {
+                        question: "¿Qué es una mutación génica?",
+                        answers: [
+                            { text: "Una alteración en la secuencia de nucleótidos de un gen.", correct: true },
+                            { text: "Una duplicación de cromosomas.", correct: false },
+                            { text: "Una separación de los cromosomas durante la mitosis.", correct: false },
+                            { text: "Una fusión de dos genes diferentes.", correct: false }
+                        ]
+                    },
+                    {
+                        question: "¿Qué tipo de mutación implica un cambio en el número de cromosomas?",
+                        answers: [
+                            { text: "Mutación cromosómica.", correct: true },
+                            { text: "Mutación génica.", correct: false },
+                            { text: "Translocación.", correct: false },
+                            { text: "Inversión.", correct: false }
+                        ]
+                    },
+                    {
+                        question: "¿Cuál es un ejemplo de mutación cromosómica?",
+                        answers: [
+                            { text: "Síndrome de Down.", correct: true },
+                            { text: "Anemia falciforme.", correct: false },
+                            { text: "Fibrosis quística.", correct: false },
+                            { text: "Distrofia muscular.", correct: false }
+                        ]
+                    },
+                    {
+                        question: "¿Qué término describe una mutación en la que se pierden uno o más nucleótidos en una secuencia de ADN?",
+                        answers: [
+                            { text: "Deleción.", correct: true },
+                            { text: "Duplicación.", correct: false },
+                            { text: "Inversión.", correct: false },
+                            { text: "Translocación.", correct: false }
+                        ]
+                    }
                 ]
             },
             {
-                id: 'q20',
-                indicator: 'Indicador 10.5: Indaga y describe con claridad el código genético y sus implicaciones en la herencia.',
-                question: "¿Cuál es la función del ARN mensajero (ARNm) en el proceso del código genético?",
-                options: [
-                    { value: 'a', text: "Transportar la información genética del ADN al ribosoma para la síntesis de proteínas." },
-                    { value: 'b', text: "Ensamblar los aminoácidos en el ribosoma." },
-                    { value: 'c', text: "Regresar la información genética al núcleo." },
-                    { value: 'd', text: "Eliminar mutaciones en la secuencia genética." }
-                ]
-            },
-            // Indicador 10.6
-            {
-                id: 'q21',
-                indicator: 'Indicador 10.6: Investiga y explica con responsabilidad las técnicas de ingeniería genética y sus aplicaciones.',
-                question: "¿Qué es la ingeniería genética?",
-                options: [
-                    { value: 'a', text: "Es la manipulación directa del ADN de un organismo para alterar sus características." },
-                    { value: 'b', text: "Es el estudio de las mutaciones genéticas en la naturaleza." },
-                    { value: 'c', text: "Es la selección natural de especies en un ecosistema." },
-                    { value: 'd', text: "Es el cruce de diferentes especies para crear nuevas." }
-                ]
-            },
-            {
-                id: 'q22',
-                indicator: 'Indicador 10.6: Investiga y explica con responsabilidad las técnicas de ingeniería genética y sus aplicaciones.',
-                question: "¿Cuál es una aplicación común de la ingeniería genética en la agricultura?",
-                options: [
-                    { value: 'a', text: "El desarrollo de cultivos transgénicos resistentes a plagas." },
-                    { value: 'b', text: "La selección de semillas tradicionales." },
-                    { value: 'c', text: "El uso de fertilizantes orgánicos." },
-                    { value: 'd', text: "La rotación de cultivos." }
-                ]
-            },
-            {
-                id: 'q23',
-                indicator: 'Indicador 10.6: Investiga y explica con responsabilidad las técnicas de ingeniería genética y sus aplicaciones.',
-                question: "¿Qué técnica permite insertar un gen específico en un organismo para darle una nueva característica?",
-                options: [
-                    { value: 'a', text: "Transferencia génica." },
-                    { value: 'b', text: "Clonación." },
-                    { value: 'c', text: "Mutagénesis." },
-                    { value: 'd', text: "Secuenciación de ADN." }
+                indicator: "Indicador 10.8: Investiga y explica con interés las aplicaciones de la ingeniería genética en la medicina y la agricultura.",
+                questions: [
+                    {
+                        question: "¿Qué organismo modificado genéticamente se ha utilizado comúnmente en la investigación científica?",
+                        answers: [
+                            { text: "El ratón de laboratorio.", correct: true },
+                            { text: "El perro.", correct: false },
+                            { text: "La vaca.", correct: false },
+                            { text: "El elefante.", correct: false }
+                        ]
+                    },
+                    {
+                        question: "¿Cuál es un beneficio potencial de la ingeniería genética en la agricultura?",
+                        answers: [
+                            { text: "El desarrollo de cultivos más resistentes a sequías.", correct: true },
+                            { text: "El aumento de la dependencia de pesticidas.", correct: false },
+                            { text: "La reducción de la biodiversidad.", correct: false },
+                            { text: "El desarrollo de técnicas de cultivo tradicionales.", correct: false }
+                        ]
+                    },
+                    {
+                        question: "¿Cómo puede la ingeniería genética contribuir al tratamiento de enfermedades genéticas?",
+                        answers: [
+                            { text: "Mediante la terapia génica que corrige defectos genéticos en células.", correct: true },
+                            { text: "A través de la vacunación tradicional.", correct: false },
+                            { text: "Mediante la selección de pacientes para ensayos clínicos.", correct: false },
+                            { text: "A través del diagnóstico por imagen.", correct: false }
+                        ]
+                    },
+                    {
+                        question: "¿Qué técnica de ingeniería genética ha permitido el desarrollo de medicamentos como la insulina recombinante?",
+                        answers: [
+                            { text: "Terapia génica.", correct: false },
+                            { text: "Edición de genes.", correct: false },
+                            { text: "Clonación.", correct: false },
+                            { text: "Mutagénesis.", correct: true }
+                        ]
+                    }
                 ]
             },
             {
-                id: 'q24',
-                indicator: 'Indicador 10.6: Investiga y explica con responsabilidad las técnicas de ingeniería genética y sus aplicaciones.',
-                question: "¿Cuál es una posible aplicación de la ingeniería genética en la medicina?",
-                options: [
-                    { value: 'a', text: "La terapia génica para tratar enfermedades genéticas." },
-                    { value: 'b', text: "El uso de antibióticos convencionales." },
-                    { value: 'c', text: "El diagnóstico por imagen." },
-                    { value: 'd', text: "El desarrollo de vacunas tradicionales." }
-                ]
-            },
-            // Indicador 10.7
-            {
-                id: 'q25',
-                indicator: 'Indicador 10.7: Indaga y describe con precisión las mutaciones génicas y cromosómicas.',
-                question: "¿Qué es una mutación génica?",
-                options: [
-                    { value: 'a', text: "Una alteración en la secuencia de nucleótidos de un gen." },
-                    { value: 'b', text: "Una duplicación de cromosomas." },
-                    { value: 'c', text: "Una separación de los cromosomas durante la mitosis." },
-                    { value: 'd', text: "Una fusión de dos genes diferentes." }
-                ]
-            },
-            {
-                id: 'q26',
-                indicator: 'Indicador 10.7: Indaga y describe con precisión las mutaciones génicas y cromosómicas.',
-                question: "¿Qué tipo de mutación implica un cambio en el número de cromosomas?",
-                options: [
-                    { value: 'a', text: "Mutación cromosómica." },
-                    { value: 'b', text: "Mutación génica." },
-                    { value: 'c', text: "Translocación." },
-                    { value: 'd', text: "Inversión." }
-                ]
-            },
-            {
-                id: 'q27',
-                indicator: 'Indicador 10.7: Indaga y describe con precisión las mutaciones génicas y cromosómicas.',
-                question: "¿Qué término describe una mutación en la que se pierden uno o más nucleótidos en una secuencia de ADN?",
-                options: [
-                    { value: 'a', text: "Deleción." },
-                    { value: 'b', text: "Duplicación." },
-                    { value: 'c', text: "Inversión." },
-                    { value: 'd', text: "Translocación." }
+                indicator: "Indicador 10.9: Experimenta y explica con interés el tipo sanguíneo que presentan los seres humanos.",
+                questions: [
+                    {
+                        question: "¿Qué determina el tipo sanguíneo de una persona?",
+                        answers: [
+                            { text: "Los antígenos presentes en los glóbulos rojos.", correct: true },
+                            { text: "La cantidad de glóbulos blancos en la sangre.", correct: false },
+                            { text: "El nivel de hemoglobina.", correct: false },
+                            { text: "La presencia de plaquetas.", correct: false }
+                        ]
+                    },
+                    {
+                        question: "¿Qué combinación de padres podría producir un hijo con tipo de sangre O?",
+                        answers: [
+                            { text: "Padre con tipo O y madre con tipo O.", correct: true },
+                            { text: "Padre con tipo A y madre con tipo B.", correct: false },
+                            { text: "Padre con tipo AB y madre con tipo AB.", correct: false },
+                            { text: "Padre con tipo B y madre con tipo O.", correct: false }
+                        ]
+                    },
+                    {
+                        question: "¿Cuál es la importancia del factor Rh en la sangre?",
+                        answers: [
+                            { text: "Determina la compatibilidad para transfusiones sanguíneas.", correct: true },
+                            { text: "Afecta la coagulación de la sangre.", correct: false },
+                            { text: "Indica el nivel de azúcar en la sangre.", correct: false },
+                            { text: "Controla el transporte de oxígeno.", correct: false }
+                        ]
+                    },
+                    {
+                        question: "¿Cuál es el tipo sanguíneo considerado como donante universal?",
+                        answers: [
+                            { text: "O negativo.", correct: true },
+                            { text: "AB positivo.", correct: false },
+                            { text: "A positivo.", correct: false },
+                            { text: "B negativo.", correct: false }
+                        ]
+                    }
                 ]
             },
             {
-                id: 'q28',
-                indicator: 'Indicador 10.7: Indaga y describe con precisión las mutaciones génicas y cromosómicas.',
-                question: "¿Cuál es un ejemplo de mutación cromosómica?",
-                options: [
-                    { value: 'a', text: "Síndrome de Down." },
-                    { value: 'b', text: "Anemia falciforme." },
-                    { value: 'c', text: "Fibrosis quística." },
-                    { value: 'd', text: "Distrofia muscular." }
-                ]
-            },
-            // Indicador 10.8
-            {
-                id: 'q29',
-                indicator: 'Indicador 10.8: Investiga y explica con interés las aplicaciones de la ingeniería genética en la medicina y la agricultura.',
-                question: "¿Cuál es un beneficio potencial de la ingeniería genética en la agricultura?",
-                options: [
-                    { value: 'a', text: "El desarrollo de cultivos más resistentes a sequías." },
-                    { value: 'b', text: "El aumento de la dependencia de pesticidas." },
-                    { value: 'c', text: "La reducción de la biodiversidad." },
-                    { value: 'd', text: "El desarrollo de técnicas de cultivo tradicionales." }
-                ]
-            },
-            {
-                id: 'q30',
-                indicator: 'Indicador 10.8: Investiga y explica con interés las aplicaciones de la ingeniería genética en la medicina y la agricultura.',
-                question: "¿Cómo puede la ingeniería genética contribuir al tratamiento de enfermedades genéticas?",
-                options: [
-                    { value: 'a', text: "Mediante la terapia génica que corrige defectos genéticos en células." },
-                    { value: 'b', text: "A través de la vacunación tradicional." },
-                    { value: 'c', text: "Mediante la selección de pacientes para ensayos clínicos." },
-                    { value: 'd', text: "A través del diagnóstico por imagen." }
-                ]
-            },
-            {
-                id: 'q31',
-                indicator: 'Indicador 10.8: Investiga y explica con interés las aplicaciones de la ingeniería genética en la medicina y la agricultura.',
-                question: "¿Qué organismo modificado genéticamente se ha utilizado comúnmente en la investigación científica?",
-                options: [
-                    { value: 'a', text: "El ratón de laboratorio." },
-                    { value: 'b', text: "El perro." },
-                    { value: 'c', text: "La vaca." },
-                    { value: 'd', text: "El elefante." }
+                indicator: "Indicador 10.10: Formula preguntas relativas a algunas mutaciones genéticas en los seres humanos.",
+                questions: [
+                    {
+                        question: "¿Qué preguntas ayudarían a identificar si una mutación es hereditaria?",
+                        answers: [
+                            { text: "¿Está presente en otros miembros de la familia? ¿Es común en la población general?", correct: true },
+                            { text: "¿Ocurrió recientemente? ¿Es letal?", correct: false },
+                            { text: "¿Fue causada por factores ambientales? ¿Es reversible?", correct: false },
+                            { text: "¿Fue detectada en la infancia? ¿Es curable?", correct: false }
+                        ]
+                    },
+                    {
+                        question: "¿Qué preguntas deben abordarse para evaluar el impacto de una mutación genética en la salud?",
+                        answers: [
+                            { text: "¿Cómo afecta la calidad de vida? ¿Es tratable con terapias actuales?", correct: true },
+                            { text: "¿Es más común en ciertos grupos étnicos? ¿Afecta la longevidad?", correct: false },
+                            { text: "¿Es mortal? ¿A qué edad se presenta?", correct: false },
+                            { text: "¿Es contagiosa? ¿Se transmite por el aire?", correct: false }
+                        ]
+                    },
+                    {
+                        question: "¿Qué preguntas clave deben hacerse sobre los efectos de una mutación genética?",
+                        answers: [
+                            { text: "¿Es perjudicial o beneficiosa? ¿Cómo afecta la salud?", correct: true },
+                            { text: "¿Dónde ocurrió? ¿Quién la causó?", correct: false },
+                            { text: "¿Cuándo fue detectada? ¿Cómo se descubrió?", correct: false },
+                            { text: "¿Es frecuente en todas las personas?", correct: false }
+                        ]
+                    }
                 ]
             },
             {
-                id: 'q32',
-                indicator: 'Indicador 10.8: Investiga y explica con interés las aplicaciones de la ingeniería genética en la medicina y la agricultura.',
-                question: "¿Qué técnica de ingeniería genética ha permitido el desarrollo de medicamentos como la insulina recombinante?",
-                options: [
-                    { value: 'a', text: "Terapia génica." },
-                    { value: 'b', text: "Edición de genes." },
-                    { value: 'c', text: "Clonación." },
-                    { value: 'd', text: "Mutagénesis." }
-                ]
-            },
-            // Indicador 10.9
-            {
-                id: 'q33',
-                indicator: 'Indicador 10.9: Experimenta y explica con interés el tipo sanguíneo que presentan los seres humanos.',
-                question: "¿Cuál es el tipo sanguíneo considerado como donante universal?",
-                options: [
-                    { value: 'a', text: "O negativo." },
-                    { value: 'b', text: "AB positivo." },
-                    { value: 'c', text: "A positivo." },
-                    { value: 'd', text: "B negativo." }
-                ]
-            },
-            {
-                id: 'q34',
-                indicator: 'Indicador 10.9: Experimenta y explica con interés el tipo sanguíneo que presentan los seres humanos.',
-                question: "¿Qué determina el tipo sanguíneo de una persona?",
-                options: [
-                    { value: 'a', text: "Los antígenos presentes en los glóbulos rojos." },
-                    { value: 'b', text: "La cantidad de glóbulos blancos en la sangre." },
-                    { value: 'c', text: "El nivel de hemoglobina." },
-                    { value: 'd', text: "La presencia de plaquetas." }
-                ]
-            },
-            {
-                id: 'q35',
-                indicator: 'Indicador 10.9: Experimenta y explica con interés el tipo sanguíneo que presentan los seres humanos.',
-                question: "¿Cuál es la importancia del factor Rh en la sangre?",
-                options: [
-                    { value: 'a', text: "Determina la compatibilidad para transfusiones sanguíneas." },
-                    { value: 'b', text: "Afecta la coagulación de la sangre." },
-                    { value: 'c', text: "Indica el nivel de azúcar en la sangre." },
-                    { value: 'd', text: "Controla el transporte de oxígeno." }
+                indicator: "Indicador 10.11: Investiga y describe con responsabilidad algunas anomalías genéticas más frecuentes en humanos.",
+                questions: [
+                    {
+                        question: "¿Qué causa el síndrome de Down?",
+                        answers: [
+                            { text: "Una copia extra del cromosoma 21.", correct: true },
+                            { text: "Una mutación en el gen BRCA1.", correct: false },
+                            { text: "Un virus durante el embarazo.", correct: false },
+                            { text: "Una deficiencia de vitaminas.", correct: false }
+                        ]
+                    },
+                    {
+                        question: "¿Qué condición genética está asociada con la pérdida de la visión debido a la degeneración de la retina?",
+                        answers: [
+                            { text: "Retinitis pigmentosa.", correct: true },
+                            { text: "Esclerosis múltiple.", correct: false },
+                            { text: "Hipotiroidismo.", correct: false },
+                            { text: "Cataratas.", correct: false }
+                        ]
+                    },
+                    {
+                        question: "¿Cuál de las siguientes condiciones es causada por una mutación en un solo gen?",
+                        answers: [
+                            { text: "Fibrosis quística.", correct: true },
+                            { text: "Hipertensión.", correct: false },
+                            { text: "Obesidad.", correct: false },
+                            { text: "Cardiopatía congénita.", correct: false }
+                        ]
+                    },
+                    {
+                        question: "¿Cuál de las siguientes es una anomalía genética común?",
+                        answers: [
+                            { text: "Síndrome de Down.", correct: true },
+                            { text: "Cáncer de piel.", correct: false },
+                            { text: "Diabetes tipo 2.", correct: false },
+                            { text: "Asma.", correct: false }
+                        ]
+                    }
                 ]
             },
             {
-                id: 'q36',
-                indicator: 'Indicador 10.9: Experimenta y explica con interés el tipo sanguíneo que presentan los seres humanos.',
-                question: "¿Qué combinación de padres podría producir un hijo con tipo de sangre O?",
-                options: [
-                    { value: 'a', text: "Padre con tipo O y madre con tipo O." },
-                    { value: 'b', text: "Padre con tipo A y madre con tipo B." },
-                    { value: 'c', text: "Padre con tipo AB y madre con tipo AB." },
-                    { value: 'd', text: "Padre con tipo B y madre con tipo O." }
-                ]
-            },
-            // Indicador 10.10
-            {
-                id: 'q37',
-                indicator: 'Indicador 10.10: Formula preguntas relativas a algunas mutaciones genéticas en los seres humanos.',
-                question: "¿Qué preguntas clave deben hacerse sobre los efectos de una mutación genética?",
-                options: [
-                    { value: 'a', text: "¿Es perjudicial o beneficiosa? ¿Cómo afecta la salud?" },
-                    { value: 'b', text: "¿Dónde ocurrió? ¿Quién la causó?" },
-                    { value: 'c', text: "¿Cuándo fue detectada? ¿Cómo se descubrió?" },
-                    { value: 'd', text: "¿Es frecuente en todas las personas?" }
-                ]
-            },
-            {
-                id: 'q38',
-                indicator: 'Indicador 10.10: Formula preguntas relativas a algunas mutaciones genéticas en los seres humanos.',
-                question: "¿Qué preguntas ayudarían a identificar si una mutación es hereditaria?",
-                options: [
-                    { value: 'a', text: "¿Está presente en otros miembros de la familia? ¿Es común en la población general?" },
-                    { value: 'b', text: "¿Ocurrió recientemente? ¿Es letal?" },
-                    { value: 'c', text: "¿Fue causada por factores ambientales? ¿Es reversible?" },
-                    { value: 'd', text: "¿Fue detectada en la infancia? ¿Es curable?" }
-                ]
-            },
-            {
-                id: 'q39',
-                indicator: 'Indicador 10.10: Formula preguntas relativas a algunas mutaciones genéticas en los seres humanos.',
-                question: "¿Qué preguntas son esenciales para comprender las causas de una mutación genética?",
-                options: [
-                    { value: 'a', text: "¿Qué factores ambientales o genéticos la causaron? ¿Cómo se puede prevenir?" },
-                    { value: 'b', text: "¿Es dolorosa? ¿Cuántas personas la tienen?" },
-                    { value: 'c', text: "¿Se puede curar? ¿Es contagiosa?" },
-                    { value: 'd', text: "¿Afecta solo a humanos? ¿Es exclusiva de una región?" }
+                indicator: "Indicador 10.12: Investiga y explica con interés a las células madre y su importancia en diversos ámbitos de la vida de los seres humanos.",
+                questions: [
+                    {
+                        question: "¿Qué son las células madre?",
+                        answers: [
+                            { text: "Células que tienen la capacidad de diferenciarse en varios tipos de células especializadas.", correct: true },
+                            { text: "Células que solo pueden convertirse en células musculares.", correct: false },
+                            { text: "Células que forman las capas externas de la piel.", correct: false },
+                            { text: "Células que no tienen ninguna función.", correct: false }
+                        ]
+                    },
+                    {
+                        question: "¿Qué tipo de células madre tiene el potencial de convertirse en cualquier tipo de célula del cuerpo?",
+                        answers: [
+                            { text: "Células madre pluripotentes.", correct: true },
+                            { text: "Células madre unipotentes.", correct: false },
+                            { text: "Células madre bipotentes.", correct: false },
+                            { text: "Células madre oligopotentes.", correct: false }
+                        ]
+                    },
+                    {
+                        question: "¿Cuál es una de las aplicaciones de las células madre en la medicina?",
+                        answers: [
+                            { text: "Regeneración de tejidos dañados.", correct: true },
+                            { text: "Tratamiento de enfermedades virales.", correct: false },
+                            { text: "Producción de hormonas.", correct: false },
+                            { text: "Control de la presión arterial.", correct: false }
+                        ]
+                    },
+                    {
+                        question: "¿En qué área de la medicina las células madre han mostrado un gran potencial para tratamientos futuros?",
+                        answers: [
+                            { text: "Medicina regenerativa.", correct: true },
+                            { text: "Medicina preventiva.", correct: false },
+                            { text: "Medicina deportiva.", correct: false },
+                            { text: "Medicina alternativa.", correct: false }
+                        ]
+                    }
                 ]
             },
             {
-                id: 'q40',
-                indicator: 'Indicador 10.10: Formula preguntas relativas a algunas mutaciones genéticas en los seres humanos.',
-                question: "¿Qué preguntas deben abordarse para evaluar el impacto de una mutación genética en la salud?",
-                options: [
-                    { value: 'a', text: "¿Cómo afecta la calidad de vida? ¿Es tratable con terapias actuales?" },
-                    { value: 'b', text: "¿Es más común en ciertos grupos étnicos? ¿Afecta la longevidad?" },
-                    { value: 'c', text: "¿Es mortal? ¿A qué edad se presenta?" },
-                    { value: 'd', text: "¿Es contagiosa? ¿Se transmite por el aire?" }
-                ]
-            },
-            // Indicador 10.11
-            {
-                id: 'q41',
-                indicator: 'Indicador 10.11: Investiga y describe con responsabilidad algunas anomalías genéticas más frecuentes en humanos.',
-                question: "¿Cuál de las siguientes es una anomalía genética común?",
-                options: [
-                    { value: 'a', text: "Síndrome de Down." },
-                    { value: 'b', text: "Cáncer de piel." },
-                    { value: 'c', text: "Diabetes tipo 2." },
-                    { value: 'd', text: "Asma." }
-                ]
-            },
-            {
-                id: 'q42',
-                indicator: 'Indicador 10.11: Investiga y describe con responsabilidad algunas anomalías genéticas más frecuentes en humanos.',
-                question: "¿Qué causa el síndrome de Down?",
-                options: [
-                    { value: 'a', text: "Una copia extra del cromosoma 21." },
-                    { value: 'b', text: "Una mutación en el gen BRCA1." },
-                    { value: 'c', text: "Un virus durante el embarazo." },
-                    { value: 'd', text: "Una deficiencia de vitaminas." }
-                ]
-            },
-            {
-                id: 'q43',
-                indicator: 'Indicador 10.11: Investiga y describe con responsabilidad algunas anomalías genéticas más frecuentes en humanos.',
-                question: "¿Cuál de las siguientes condiciones es causada por una mutación en un solo gen?",
-                options: [
-                    { value: 'a', text: "Fibrosis quística." },
-                    { value: 'b', text: "Hipertensión." },
-                    { value: 'c', text: "Obesidad." },
-                    { value: 'd', text: "Cardiopatía congénita." }
-                ]
-            },
-            {
-                id: 'q44',
-                indicator: 'Indicador 10.11: Investiga y describe con responsabilidad algunas anomalías genéticas más frecuentes en humanos.',
-                question: "¿Qué condición genética está asociada con la pérdida de la visión debido a la degeneración de la retina?",
-                options: [
-                    { value: 'a', text: "Retinitis pigmentosa." },
-                    { value: 'b', text: "Esclerosis múltiple." },
-                    { value: 'c', text: "Hipotiroidismo." },
-                    { value: 'd', text: "Cataratas." }
-                ]
-            },
-            // Indicador 10.12
-            {
-                id: 'q45',
-                indicator: 'Indicador 10.12: Investiga y explica con interés a las células madre y su importancia en diversos ámbitos de la vida de los seres humanos.',
-                question: "¿Qué son las células madre?",
-                options: [
-                    { value: 'a', text: "Células que tienen la capacidad de diferenciarse en varios tipos de células especializadas." },
-                    { value: 'b', text: "Células que solo pueden convertirse en células musculares." },
-                    { value: 'c', text: "Células que forman las capas externas de la piel." },
-                    { value: 'd', text: "Células que no tienen ninguna función." }
-                ]
-            },
-            {
-                id: 'q46',
-                indicator: 'Indicador 10.12: Investiga y explica con interés a las células madre y su importancia en diversos ámbitos de la vida de los seres humanos.',
-                question: "¿Cuál es una de las aplicaciones de las células madre en la medicina?",
-                options: [
-                    { value: 'a', text: "Regeneración de tejidos dañados." },
-                    { value: 'b', text: "Tratamiento de enfermedades virales." },
-                    { value: 'c', text: "Producción de hormonas." },
-                    { value: 'd', text: "Control de la presión arterial." }
-                ]
-            },
-            {
-                id: 'q47',
-                indicator: 'Indicador 10.12: Investiga y explica con interés a las células madre y su importancia en diversos ámbitos de la vida de los seres humanos.',
-                question: "¿Qué tipo de células madre tiene el potencial de convertirse en cualquier tipo de célula del cuerpo?",
-                options: [
-                    { value: 'a', text: "Células madre pluripotentes." },
-                    { value: 'b', text: "Células madre unipotentes." },
-                    { value: 'c', text: "Células madre bipotentes." },
-                    { value: 'd', text: "Células madre oligopotentes." }
-                ]
-            },
-            {
-                id: 'q48',
-                indicator: 'Indicador 10.12: Investiga y explica con interés a las células madre y su importancia en diversos ámbitos de la vida de los seres humanos.',
-                question: "¿En qué área de la medicina las células madre han mostrado un gran potencial para tratamientos futuros?",
-                options: [
-                    { value: 'a', text: "Medicina regenerativa." },
-                    { value: 'b', text: "Medicina preventiva." },
-                    { value: 'c', text: "Medicina deportiva." },
-                    { value: 'd', text: "Medicina alternativa." }
-                ]
-            },
-            // Indicador 10.13
-            {
-                id: 'q49',
-                indicator: 'Indicador 10.13: Investiga y explica críticamente los aspectos fundamentales que trata la bioética y las mutaciones inducidas en el laboratorio.',
-                question: "¿Qué es la bioética?",
-                options: [
-                    { value: 'a', text: "El estudio de los aspectos éticos relacionados con la biología y la medicina." },
-                    { value: 'b', text: "El estudio de la biodiversidad en un ecosistema." },
-                    { value: 'c', text: "El análisis de los efectos de las mutaciones genéticas." },
-                    { value: 'd', text: "La aplicación de la biotecnología en la agricultura." }
-                ]
-            },
-            {
-                id: 'q50',
-                indicator: 'Indicador 10.13: Investiga y explica críticamente los aspectos fundamentales que trata la bioética y las mutaciones inducidas en el laboratorio.',
-                question: "¿Qué cuestiones éticas pueden surgir al inducir mutaciones en un laboratorio?",
-                options: [
-                    { value: 'a', text: "Las implicaciones para la salud humana y la manipulación de la vida." },
-                    { value: 'b', text: "El aumento de la biodiversidad en la naturaleza." },
-                    { value: 'c', text: "La mejora de las técnicas de cultivo agrícola." },
-                    { value: 'd', text: "La disminución de la resistencia a enfermedades." }
-                ]
-            },
-            {
-                id: 'q51',
-                indicator: 'Indicador 10.13: Investiga y explica críticamente los aspectos fundamentales que trata la bioética y las mutaciones inducidas en el laboratorio.',
-                question: "¿Cuál es un principio clave en la bioética relacionado con la investigación genética?",
-                options: [
-                    { value: 'a', text: "El respeto a la autonomía del individuo." },
-                    { value: 'b', text: "La promoción del uso de pesticidas." },
-                    { value: 'c', text: "El fomento de la clonación en masa." },
-                    { value: 'd', text: "El rechazo a todas las formas de tecnología." }
-                ]
-            },
-            {
-                id: 'q52',
-                indicator: 'Indicador 10.13: Investiga y explica críticamente los aspectos fundamentales que trata la bioética y las mutaciones inducidas en el laboratorio.',
-                question: "¿Qué dilema ético puede presentarse al utilizar técnicas de edición genética en humanos?",
-                options: [
-                    { value: 'a', text: "El riesgo de crear desigualdades sociales debido a la manipulación genética." },
-                    { value: 'b', text: "El aumento de la biodiversidad en un ecosistema." },
-                    { value: 'c', text: "La mejora de la calidad del aire." },
-                    { value: 'd', text: "La producción masiva de alimentos." }
+                indicator: "Indicador 10.13: Investiga y explica críticamente los aspectos fundamentales que trata la bioética y las mutaciones inducidas en el laboratorio.",
+                questions: [
+                    {
+                        question: "¿Qué es la bioética?",
+                        answers: [
+                            { text: "El estudio de los aspectos éticos relacionados con la biología y la medicina.", correct: true },
+                            { text: "El estudio de la biodiversidad en un ecosistema.", correct: false },
+                            { text: "El análisis de los efectos de las mutaciones genéticas.", correct: false },
+                            { text: "La aplicación de la biotecnología en la agricultura.", correct: false }
+                        ]
+                    },
+                    {
+                        question: "¿Qué dilema ético puede presentarse al utilizar técnicas de edición genética en humanos?",
+                        answers: [
+                            { text: "El riesgo de crear desigualdades sociales debido a la manipulación genética.", correct: true },
+                            { text: "El aumento de la biodiversidad en un ecosistema.", correct: false },
+                            { text: "La mejora de la calidad del aire.", correct: false },
+                            { text: "La producción masiva de alimentos.", correct: false }
+                        ]
+                    },
+                    {
+                        question: "¿Qué cuestiones éticas pueden surgir al inducir mutaciones en un laboratorio?",
+                        answers: [
+                            { text: "Las implicaciones para la salud humana y la manipulación de la vida.", correct: true },
+                            { text: "El aumento de la biodiversidad en la naturaleza.", correct: false },
+                            { text: "La mejora de las técnicas de cultivo agrícola.", correct: false },
+                            { text: "La disminución de la resistencia a enfermedades.", correct: false }
+                        ]
+                    },
+                    {
+                        question: "¿Cuál es un principio clave en la bioética relacionado con la investigación genética?",
+                        answers: [
+                            { text: "El respeto a la autonomía del individuo.", correct: true },
+                            { text: "La promoción del uso de pesticidas.", correct: false },
+                            { text: "El fomento de la clonación en masa.", correct: false },
+                            { text: "El rechazo a todas las formas de tecnología.", correct: false }
+                        ]
+                    }
                 ]
             }
         ];
 
-        const correctAnswerKeys = { 
-            q1: 'a', q2: 'a', q3: 'a', q4: 'a', q5: 'a', q6: 'a', q7: 'a', q8: 'a', q9: 'a', q10: 'a', 
-            q11: 'a', q12: 'a', q13: 'a', q14: 'a', q15: 'a', q16: 'a', q17: 'a', q18: 'a', q19: 'a', q20: 'a', 
-            q21: 'a', q22: 'a', q23: 'a', q24: 'a', q25: 'a', q26: 'a', q27: 'a', q28: 'a', q29: 'a', q30: 'a', 
-            q31: 'a', q32: 'a', q33: 'a', q34: 'a', q35: 'a', q36: 'a', q37: 'a', q38: 'a', q39: 'a', q40: 'a', 
-            q41: 'a', q42: 'a', q43: 'a', q44: 'a', q45: 'a', q46: 'a', q47: 'a', q48: 'a', q49: 'a', q50: 'a', 
-            q51: 'a', q52: 'a'
-        };
+        let attempt = 0;
+        const maxAttempts = 2;
+        const evaluationName = "Evaluación Unidad 10: La Revolución Genética";
+        let timer;
+        let timeLeft = 1800; // 30 minutos en segundos
+        let startTime;
+        let manipulationCount = 0;
 
         function shuffle(array) {
             for (let i = array.length - 1; i > 0; i--) {
@@ -707,99 +728,198 @@
             return array;
         }
 
-        function displayQuestions() {
-            const container = document.getElementById('questions-container');
-            const shuffledQuestions = shuffle([...questions]);
+        function loadQuiz() {
+            const quizContainer = document.getElementById('quiz');
+            quizContainer.innerHTML = '';
 
-            shuffledQuestions.forEach((q, index) => {
-                const questionElement = document.createElement('div');
-                questionElement.classList.add('question');
-                questionElement.innerHTML = `
-                    <h3>${q.indicator}</h3>
-                    <p>${index + 1}. ${q.question}</p>
-                    ${q.options.map(option => `
-                        <input type="radio" name="${q.id}" value="${option.value}" required> ${option.value}) ${option.text}<br>
-                    `).join('')}
-                `;
-                container.appendChild(questionElement);
+            quizData.forEach(section => {
+                const indicatorContainer = document.createElement('div');
+                indicatorContainer.className = 'indicator';
+                indicatorContainer.innerText = section.indicator;
+                quizContainer.appendChild(indicatorContainer);
+
+                shuffle(section.questions).forEach((data, index) => {
+                    const questionContainer = document.createElement('div');
+                    questionContainer.className = 'question';
+
+                    const questionTitle = document.createElement('h3');
+                    questionTitle.innerText = `${index + 1}. ${data.question}`;
+                    questionContainer.appendChild(questionTitle);
+
+                    const optionsList = document.createElement('ul');
+                    optionsList.className = 'options';
+
+                    shuffle(data.answers).forEach(answer => {
+                        const option = document.createElement('li');
+                        const optionLabel = document.createElement('label');
+                        const optionInput = document.createElement('input');
+                        optionInput.type = 'radio';
+                        optionInput.name = `question${section.indicator}${index}`;
+                        optionInput.value = answer.correct;
+                        optionLabel.appendChild(optionInput);
+                        optionLabel.appendChild(document.createTextNode(answer.text));
+                        option.appendChild(optionLabel);
+                        optionsList.appendChild(option);
+                    });
+
+                    questionContainer.appendChild(optionsList);
+                    quizContainer.appendChild(questionContainer);
+                });
             });
         }
 
-        function startTimer() {
-            document.getElementById('timer').classList.remove('hidden');
-            startTime = new Date();
-            const timerInterval = setInterval(() => {
-                const minutes = Math.floor(timeRemaining / 60);
-                const seconds = timeRemaining % 60;
-                timerElement.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
-                if (timeRemaining === 0) {
-                    clearInterval(timerInterval);
-                    showResults("Tiempo agotado. No se pudo completar la evaluación.", []);
-                }
-                timeRemaining--;
-            }, 1000);
-        }
+        function submitQuiz() {
+            const fullname = document.getElementById('fullname').value.trim();
+            const nie = document.getElementById('nie').value.trim();
 
-        document.getElementById('infoForm').addEventListener('submit', function (event) {
-            event.preventDefault();
-            const name = document.getElementById('name').value;
-            const nie = document.getElementById('nie').value;
-
-            if (!nieList.includes(nie)) {
-                alert("NIE no autorizado.");
+            if (!fullname || !nie) {
+                alert('Por favor, ingresa tu nombre completo y NIE.');
                 return;
             }
 
-            document.getElementById('studentInfoForm').classList.add('hidden');
-            document.getElementById('quiz').classList.remove('hidden');
-            displayQuestions();
-            startTimer();
-        });
+            if (attempt >= maxAttempts) {
+                alert('Has alcanzado el número máximo de intentos.');
+                return;
+            }
 
-        document.getElementById('submitQuiz').addEventListener('click', function () {
-            let correctAnswers = 0;
+            const answers = document.querySelectorAll('input[type="radio"]:checked');
             let incorrectAnswers = [];
+            let questionCount = 0;
 
-            questions.forEach(q => {
-                const selectedAnswer = document.querySelector(`input[name="${q.id}"]:checked`);
-                if (selectedAnswer) {
-                    if (selectedAnswer.value === correctAnswerKeys[q.id]) {
-                        correctAnswers++;
-                    } else {
-                        incorrectAnswers.push(`Pregunta ${q.id.substring(1)} incorrecta.`);
+            quizData.forEach(section => {
+                section.questions.forEach((data, index) => {
+                    const selected = answers[questionCount] ? answers[questionCount].value === 'true' : null;
+                    if (selected === false || selected === null) {
+                        incorrectAnswers.push(`Pregunta ${questionCount + 1} del ${section.indicator}`);
                     }
-                }
+                    questionCount++;
+                });
             });
 
-            const score = (correctAnswers / questions.length) * 10;
+            // Mostrar los resultados en el modal
+            document.getElementById('modalName').innerText = `Nombre: ${fullname}`;
+            document.getElementById('modalNIE').innerText = `NIE: ${nie}`;
+            const modalIncorrectAnswers = document.getElementById('modalIncorrectAnswers');
+            modalIncorrectAnswers.innerHTML = '';
+            incorrectAnswers.forEach((questionNumber) => {
+                const div = document.createElement('div');
+                div.innerText = questionNumber;
+                modalIncorrectAnswers.appendChild(div);
+            });
+
+            // Mostrar detalles adicionales
             const endTime = new Date();
-            const timeTaken = Math.floor((endTime - startTime) / 1000); // Tiempo en segundos
+            const timeTaken = ((endTime - startTime) / 1000).toFixed(2);
+            const currentDate = new Date();
+            const modalDetails = document.getElementById('modalDetails');
+            modalDetails.innerHTML = `
+                Fecha: ${currentDate.toLocaleDateString()}<br>
+                Hora: ${currentDate.toLocaleTimeString()}<br>
+                Tiempo en realizar la prueba: ${timeTaken} segundos<br>
+                Nombre de la unidad: ${evaluationName}<br>
+                Calificación: ${(10 * (quizData.length * 10 - incorrectAnswers.length) / (quizData.length * 10)).toFixed(2)}/10
+            `;
 
-            showResults(`Calificación: ${score.toFixed(2)} / 10`, incorrectAnswers, timeTaken);
-        });
+            // Mostrar intentos de manipulación
+            document.getElementById('manipulationCount').innerText = `Intentos de manipulación detectados: ${manipulationCount}`;
 
-        function showResults(scoreText, incorrectAnswers, timeTaken) {
-            const date = new Date();
-            const minutesTaken = Math.floor(timeTaken / 60);
-            const secondsTaken = timeTaken % 60;
+            // Mostrar contador de reintentos
+            document.getElementById('attemptCount').innerText = `Reintentos: ${attempt + 1}`;
 
-            document.getElementById('quiz').classList.add('hidden');
-            document.getElementById('resultsModal').style.display = 'block';
-            document.getElementById('overlay').style.display = 'block';
+            const modal = document.getElementById('resultModal');
+            modal.style.display = 'block';
 
-            document.getElementById('date').textContent = `Fecha: ${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
-            document.getElementById('timeTaken').textContent = `Tiempo tomado: ${minutesTaken} minutos y ${secondsTaken} segundos`;
-            document.getElementById('unitEvaluated').textContent = `Unidad Evaluada: Unidad 10: La Revolución Genética`;
-            document.getElementById('studentName').textContent = `Nombre del Estudiante: ${document.getElementById('name').value}`;
-            document.getElementById('studentNIE').textContent = `NIE: ${document.getElementById('nie').value}`;
-            document.getElementById('score').textContent = scoreText;
-            document.getElementById('incorrectAnswers').textContent = incorrectAnswers.join(', ');
+            attempt++;
+            if (attempt >= maxAttempts) {
+                alert('Has alcanzado el número máximo de intentos.');
+                // Aquí puedes agregar código para bloquear la MAC o deshabilitar la evaluación
+            }
         }
 
-        document.getElementById('closeModal').addEventListener('click', function () {
-            document.getElementById('resultsModal').style.display = 'none';
-            document.getElementById('overlay').style.display = 'none';
+        document.getElementById('submit').addEventListener('click', submitQuiz);
+
+        document.getElementById('startQuiz').addEventListener('click', function() {
+            const nie = document.getElementById('nie').value.trim();
+            if (!authorizedNIEs.includes(nie)) {
+                alert('NIE no autorizado.');
+                return;
+            }
+            document.querySelector('.quiz-container').style.display = 'block';
+            document.getElementById('infoModal').style.display = 'none';
+            startTime = new Date();
+            startTimer();
+            loadQuiz();
         });
+
+        // Modal close functionality
+        const closeModal = document.getElementsByClassName('close')[0];
+        closeModal.onclick = function() {
+            document.getElementById('resultModal').style.display = 'none';
+        }
+
+        window.onclick = function(event) {
+            if (event.target == document.getElementById('resultModal')) {
+                document.getElementById('resultModal').style.display = 'none';
+            }
+        }
+
+        document.addEventListener("contextmenu", function(e){
+            e.preventDefault();
+            updateCaptureCount();
+        }, false);
+
+        function startTimer() {
+            timer = setInterval(function() {
+                timeLeft--;
+                const timerElement = document.getElementById('timer');
+                let minutes = Math.floor(timeLeft / 60);
+                let seconds = timeLeft % 60;
+                seconds = seconds < 10 ? '0' + seconds : seconds;
+                timerElement.innerText = `${minutes}:${seconds}`;
+
+                if (timeLeft <= 600) {
+                    timerElement.style.backgroundColor = 'red';
+                } else if (timeLeft <= 1200) {
+                    timerElement.style.backgroundColor = 'orange';
+                } else {
+                    timerElement.style.backgroundColor = 'green';
+                }
+
+                if (timeLeft <= 0) {
+                    clearInterval(timer);
+                    submitQuiz();
+                }
+            }, 1000);
+        }
+
+        function updateCaptureCount() {
+            manipulationCount++;
+        }
+
+        document.addEventListener('visibilitychange', function() {
+            if (document.visibilityState === 'hidden') {
+                updateCaptureCount();
+            }
+        });
+
+        window.addEventListener('pagehide', function() {
+            updateCaptureCount();
+        });
+
+        window.addEventListener('contextmenu', function(e) {
+            e.preventDefault();
+            updateCaptureCount();
+        });
+
+        document.addEventListener('touchstart', function(event) {
+            if (event.touches.length > 1) {
+                updateCaptureCount();
+            }
+        });
+
+        window.onload = function() {
+            document.getElementById('infoModal').style.display = 'block';
+        }
     </script>
 </body>
 </html>
